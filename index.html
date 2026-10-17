@@ -449,6 +449,25 @@
   <div class="context-menu hidden" id="taskContextMenu" role="menu"></div>
   <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 
+    <script>
+    window.__auraLogin = function() {
+      try {
+        var st = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '-' + Math.random());
+        try { sessionStorage.setItem('oauth_state', st); } catch(e) {}
+        try { localStorage.setItem('oauth_state', st); } catch(e) {}
+        var p = new URLSearchParams({
+          client_id: 'Ov23libmYY13BABdh4t3',
+          scope: 'gist',
+          state: st,
+          redirect_uri: 'https://felipecs613-art.github.io/aura'
+        });
+        location.href = 'https://github.com/login/oauth/authorize?' + p.toString();
+      } catch(err) {
+        location.href = 'https://github.com/login/oauth/authorize?client_id=Ov23libmYY13BABdh4t3&scope=gist&redirect_uri=https://felipecs613-art.github.io/aura';
+      }
+    };
+  </script>
+
     <!-- Tela de Login GitHub -->
   <div id="loginScreen">
     <div class="login-card">
@@ -457,7 +476,7 @@
       </div>
       <h2>AURA TRACKER</h2>
       <p>Sua plataforma de estudos pessoal.<br>Faça login para sincronizar seu progresso entre dispositivos.</p>
-      <button class="btn-gh" id="ghLoginBtn" onclick="window.__auraLogin && window.__auraLogin()">
+      <button class="btn-gh" id="ghLoginBtn" onclick="window.__auraLogin()">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z"/></svg>
         Entrar com GitHub
       </button>
@@ -806,7 +825,7 @@
           const title = hasTasks ? 'Nenhuma missão encontrada' : 'Seu próximo nível começa aqui';
           const copy = hasTasks ? 'Tente alterar o filtro de status ou o termo da busca.' : 'Adicione seu primeiro item do edital ou importe uma planilha CSV para montar seu plano de estudos.';
           $('#taskGrid').innerHTML = `<div class="empty-state"><div class="empty-icon">${iconSvg(hasTasks ? 'book' : 'plus')}</div><h3>${title}</h3><p>${copy}</p><button class="btn btn-primary" type="button" id="emptyAddButton">${hasTasks ? 'Limpar busca e mostrar todas' : 'Criar primeira missão'}</button></div>`;
-          $('#emptyAddButton').addEventListener('click', () => { if (hasTasks) { $('#searchInput').value = ''; setStatusFilter('all'); renderTasks(); } else showTaskForm(); });
+          $('#emptyAddButton')?.addEventListener('click', () => { if (hasTasks) { $('#searchInput').value = ''; setStatusFilter('all'); renderTasks(); } else showTaskForm(); });
         } else {
           $('#taskGrid').innerHTML = list.map(taskCard).join('');
         }
@@ -1087,40 +1106,38 @@
 
       // Navegação e ações principais
       $$('.nav-tab').forEach(tab => tab.addEventListener('click', () => setView(tab.dataset.view)));
-      $('#profileButton').addEventListener('click', () => openModal('rankModal'));
-      $('#settingsButton').addEventListener('click', () => openModal('cycleModal'));
-      $('#heroAddButton').addEventListener('click', () => showTaskForm());
-      $('#dockAddButton').addEventListener('click', () => showTaskForm());
-      $('#taskForm').addEventListener('submit', addOrUpdateTask);
-      $('#progressCycle').addEventListener('change', renderProgress);
-      $('#searchInput').addEventListener('input', renderTasks);
-      $('#sortSelect').addEventListener('change', renderTasks);
+      $('#profileButton')?.addEventListener('click', () => openModal('rankModal'));
+      $('#settingsButton')?.addEventListener('click', () => openModal('cycleModal'));
+      $('#dockAddButton')?.addEventListener('click', () => showTaskForm());
+      $('#taskForm')?.addEventListener('submit', addOrUpdateTask);
+      $('#progressCycle')?.addEventListener('change', renderProgress);
+      $('#searchInput')?.addEventListener('input', renderTasks);
+      $('#sortSelect')?.addEventListener('change', renderTasks);
       $$('[data-status]').forEach(button => button.addEventListener('click', () => { setStatusFilter(button.dataset.status); renderTasks(); }));
-      $('#importButton').addEventListener('click', () => $('#csvFileInput').click());
-      $('#csvFileInput').addEventListener('change', event => { const file = event.target.files?.[0]; if (file) importCsvFile(file); });
-      $('#exportCsvButton').addEventListener('click', exportCsv);
-      $('#backupButton').addEventListener('click', backupData);
-      $('#cycleBackupButton').addEventListener('click', backupData);
-      $('#cycleRestoreButton').addEventListener('click', () => $('#backupFileInput').click());
-      $('#backupFileInput').addEventListener('change', event => { const file = event.target.files?.[0]; if (file) restoreBackup(file); });
-      $('#duplicateCycleForm').addEventListener('submit', duplicateCycle);
-      $('#deleteCycleForm').addEventListener('submit', deleteCycle);
-      $('#rewardForm').addEventListener('submit', addReward);
-      $('#editRewardForm').addEventListener('submit', saveEditedReward);
-      $('#taskGrid').addEventListener('click', event => {
+      $('#importButton')?.addEventListener('click', () => $('#csvFileInput').click());
+      $('#csvFileInput')?.addEventListener('change', event => { const file = event.target.files?.[0]; if (file) importCsvFile(file); });
+      $('#exportCsvButton')?.addEventListener('click', exportCsv);
+      $('#cycleBackupButton')?.addEventListener('click', backupData);
+      $('#cycleRestoreButton')?.addEventListener('click', () => $('#backupFileInput').click());
+      $('#backupFileInput')?.addEventListener('change', event => { const file = event.target.files?.[0]; if (file) restoreBackup(file); });
+      $('#duplicateCycleForm')?.addEventListener('submit', duplicateCycle);
+      $('#deleteCycleForm')?.addEventListener('submit', deleteCycle);
+      $('#rewardForm')?.addEventListener('submit', addReward);
+      $('#editRewardForm')?.addEventListener('submit', saveEditedReward);
+      $('#taskGrid')?.addEventListener('click', event => {
         const toggle = event.target.closest('[data-toggle-task]');
         const menu = event.target.closest('[data-task-menu]');
         if (toggle) { setTaskDone(toggle.dataset.toggleTask, !state.tasks.find(t => t.id === toggle.dataset.toggleTask)?.done); return; }
         if (menu) { event.stopPropagation(); openTaskContext(menu.dataset.taskMenu, menu); }
       });
-      $('#taskContextMenu').addEventListener('click', event => {
+      $('#taskContextMenu')?.addEventListener('click', event => {
         const button = event.target.closest('[data-action]'); if (!button || !contextTaskId) return;
         const id = contextTaskId, action = button.dataset.action; closeTaskContext();
         if (action === 'edit') { const task = state.tasks.find(t => t.id === id); if (task) showTaskForm(task); }
         else if (action === 'duplicate') duplicateTask(id);
         else if (action === 'delete') deleteTask(id);
       });
-      $('#shopGrid').addEventListener('click', event => {
+      $('#shopGrid')?.addEventListener('click', event => {
         const buy = event.target.closest('[data-buy-reward]'); const edit = event.target.closest('[data-edit-reward]'); const del = event.target.closest('[data-delete-reward]');
         if (buy) buyReward(buy.dataset.buyReward);
         else if (edit) editReward(edit.dataset.editReward);
