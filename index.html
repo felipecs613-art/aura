@@ -17,8 +17,8 @@
       --text: #edf3fb;
       --muted: #8e9eb3;
       --faint: #65758b;
-      --green: #53e0a0;
-      --green-dark: #173e35;
+      --green: #2ea070;
+      --green-dark: #122b21;
       --yellow: #f5c96b;
       --red: #fb7887;
       --blue: #7cacf9;
@@ -38,7 +38,7 @@
     .brand-wrap, .brand, .top-actions, .profile-chip, .wallet-chip, .nav-tabs, .section-heading, .heading-actions, .task-topline, .task-meta, .task-actions, .progress-numbers, .modal-head, .toast-row, .shop-card-head { display: flex; align-items: center; }
     .brand-wrap { gap: 34px; }
     .brand { gap: 11px; text-decoration: none; color: var(--text); }
-    .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; color: #082017; background: linear-gradient(135deg, #74f2b5, #2dc88a); box-shadow: 0 6px 22px rgba(83,224,160,.17); }
+    .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; color: #082017; background: linear-gradient(135deg, #34ad7b, #218559); box-shadow: 0 6px 22px rgba(46,160,112,.17); }
     .brand-mark svg { width: 22px; height: 22px; }
     .brand-name { font-size: 16px; font-weight: 800; letter-spacing: -.55px; }
     .brand-sub { display: block; margin-top: -3px; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
@@ -61,23 +61,23 @@
     .container { width: min(1240px, calc(100% - 40px)); margin: 0 auto; }
     .hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding: 34px 0 23px; }
     .eyebrow { display: flex; align-items: center; gap: 8px; color: var(--green); text-transform: uppercase; letter-spacing: 1.65px; font-size: 10px; font-weight: 800; }
-    .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(83,224,160,.7); }
+    .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(46,160,112,.7); }
     h1 { margin: 7px 0 5px; font-size: clamp(26px, 4vw, 35px); line-height: 1.18; letter-spacing: -1.2px; }
     .hero p { margin: 0; color: var(--muted); font-size: 13px; }
     .hero-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 39px; padding: 9px 13px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-2); color: var(--text); font-size: 12px; font-weight: 750; transition: transform .16s, border-color .16s, background .16s; }
     .btn:hover { border-color: #40516a; background: var(--surface-3); transform: translateY(-1px); }
     .btn svg { width: 15px; height: 15px; }
-    .btn-primary { border-color: var(--green); background: var(--green); color: #072318; box-shadow: 0 7px 18px rgba(83,224,160,.11); }
+    .btn-primary { border-color: var(--green); background: var(--green); color: #ffffff; box-shadow: 0 7px 18px rgba(46,160,112,.22); font-weight:700; }
     .btn-primary:hover { border-color: #78edb7; background: #78edb7; color: #072318; }
     .btn-quiet { background: transparent; }
     .btn-danger { color: var(--red); }
     .btn-small { min-height: 31px; padding: 6px 9px; border-radius: 9px; font-size: 11px; }
     .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
     .stat-card { position: relative; overflow: hidden; min-height: 114px; padding: 17px 18px; border: 1px solid var(--border); border-radius: var(--radius); background: linear-gradient(145deg, var(--surface), #101722); }
-    .stat-card::after { content: ""; position: absolute; right: -30px; bottom: -44px; width: 105px; height: 105px; border-radius: 50%; background: var(--glow, rgba(83,224,160,.05)); filter: blur(2px); }
+    .stat-card::after { content: ""; position: absolute; right: -30px; bottom: -44px; width: 105px; height: 105px; border-radius: 50%; background: var(--glow, rgba(46,160,112,.05)); filter: blur(2px); }
     .stat-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 11px; font-weight: 650; }
-    .stat-icon { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 9px; color: var(--stat-color, var(--green)); background: var(--stat-bg, rgba(83,224,160,.1)); }
+    .stat-icon { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 9px; color: var(--stat-color, var(--green)); background: var(--stat-bg, rgba(46,160,112,.1)); }
     .stat-icon svg { width: 16px; height: 16px; }
     .stat-value { position: relative; z-index: 1; margin: 7px 0 0; font-size: 27px; font-weight: 850; letter-spacing: -.8px; line-height: 1.1; }
     .stat-foot { position: relative; z-index: 1; margin-top: 5px; color: var(--faint); font-size: 10px; }
@@ -91,10 +91,10 @@
     .progress-numbers { justify-content: space-between; gap: 10px; margin-bottom: 9px; font-size: 11px; }
     .progress-numbers strong { font-size: 12px; }
     .progress-track { overflow: hidden; height: 9px; border-radius: 99px; background: #202b3a; }
-    .progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #29c783, #7cf3bc); box-shadow: 0 0 16px rgba(83,224,160,.24); transition: width .5s ease; }
+    .progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #218559, #34ad7b); box-shadow: 0 0 16px rgba(46,160,112,.24); transition: width .5s ease; }
     .cycle-mini-stats { display: flex; align-items: center; gap: 7px; margin-top: 12px; flex-wrap: wrap; }
     .mini-pill { padding: 4px 8px; border: 1px solid var(--border); border-radius: 7px; color: var(--muted); background: var(--surface-2); font-size: 10px; }
-    .percent-ring { display: flex; align-items: center; justify-content: center; gap: 13px; padding-left: 20px; border-left: 1px solid var(--border); }
+    .percent-ring { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 12px 0; border-left: none; }
     .ring { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: conic-gradient(var(--green) var(--p, 0%), #263243 0); }
     .ring::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: var(--surface); }
     .ring span { position: relative; font-size: 14px; font-weight: 850; }
@@ -102,7 +102,7 @@
     .ring-label strong { display: block; color: var(--text); font-size: 12px; }
     .tasks-section { margin-bottom: 26px; }
     .section-heading-spaced { margin-bottom: 14px; }
-    .count-badge { display: inline-grid; place-items: center; min-width: 24px; height: 22px; margin-left: 7px; padding: 0 6px; border-radius: 7px; color: var(--green); background: rgba(83,224,160,.1); font-size: 10px; vertical-align: 1px; }
+    .count-badge { display: inline-grid; place-items: center; min-width: 24px; height: 22px; margin-left: 7px; padding: 0 6px; border-radius: 7px; color: var(--green); background: rgba(46,160,112,.1); font-size: 10px; vertical-align: 1px; }
     .heading-actions { gap: 8px; }
     .search-box { position: relative; }
     .search-box svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--faint); pointer-events: none; }
@@ -116,7 +116,7 @@
     .tag-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     .tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border-radius: 6px; border: 1px solid transparent; font-size: 9px; font-weight: 750; white-space: nowrap; }
     .tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-    .tag-low { color: var(--green); border-color: rgba(83,224,160,.15); background: rgba(83,224,160,.08); }
+    .tag-low { color: var(--green); border-color: rgba(46,160,112,.15); background: rgba(46,160,112,.08); }
     .tag-medium { color: var(--yellow); border-color: rgba(245,201,107,.14); background: rgba(245,201,107,.08); }
     .tag-high { color: var(--red); border-color: rgba(251,120,135,.16); background: rgba(251,120,135,.08); }
     .tag-cycle { color: var(--blue); border-color: rgba(124,172,249,.15); background: rgba(124,172,249,.07); }
@@ -133,8 +133,8 @@
     .task-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 15px; }
     .task-award { color: var(--muted); font-size: 10px; }
     .task-award strong { color: var(--green); }
-    .complete-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 10px; border: 1px solid #2a5a49; border-radius: 9px; background: rgba(83,224,160,.09); color: var(--green); font-size: 10px; font-weight: 800; white-space: nowrap; }
-    .complete-btn:hover { background: rgba(83,224,160,.16); }
+    .complete-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 10px; border: 1px solid #2a5a49; border-radius: 9px; background: rgba(46,160,112,.09); color: var(--green); font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .complete-btn:hover { background: rgba(46,160,112,.16); }
     .completed .complete-btn { border-color: var(--border); background: var(--surface-2); color: var(--muted); }
     .complete-btn svg { width: 13px; height: 13px; }
     .empty-state { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 230px; padding: 30px; border: 1px dashed #304055; border-radius: 17px; text-align: center; background: rgba(17,25,37,.55); }
@@ -196,9 +196,9 @@
     .subsection-copy { margin: 0 0 13px; color: var(--muted); font-size: 10px; }
     .rank-list { display: grid; gap: 7px; }
     .rank-row { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-2); }
-    .rank-row.current { border-color: rgba(83,224,160,.5); background: rgba(83,224,160,.07); }
+    .rank-row.current { border-color: rgba(46,160,112,.5); background: rgba(46,160,112,.07); }
     .rank-insignia { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; color: var(--blue); background: rgba(124,172,249,.1); }
-    .rank-row.current .rank-insignia { color: var(--green); background: rgba(83,224,160,.1); }
+    .rank-row.current .rank-insignia { color: var(--green); background: rgba(46,160,112,.1); }
     .rank-insignia svg { width: 17px; height: 17px; }
     .rank-copy { flex: 1; min-width: 0; }
     .rank-name { font-weight: 800; font-size: 11px; }
@@ -295,7 +295,7 @@
     #loginScreen { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; background: var(--bg); padding: 24px; }
     #loginScreen.hidden { display: none; }
     .login-card { width: min(420px, 100%); padding: 36px; border: 1px solid var(--border); border-radius: 22px; background: var(--surface); text-align: center; }
-    .login-logo { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; margin: 0 auto 20px; color: #082017; background: linear-gradient(135deg, #74f2b5, #2dc88a); box-shadow: 0 8px 28px rgba(83,224,160,.2); }
+    .login-logo { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; margin: 0 auto 20px; color: #082017; background: linear-gradient(135deg, #34ad7b, #218559); box-shadow: 0 8px 28px rgba(46,160,112,.2); }
     .login-logo svg { width: 34px; height: 34px; }
     .login-card h2 { margin: 0 0 6px; font-size: 22px; letter-spacing: -.5px; }
     .login-card p { margin: 0 0 28px; color: var(--muted); font-size: 13px; }
@@ -315,10 +315,7 @@
   <div class="app-root">
     <header class="topbar">
       <div class="brand-wrap">
-        <a class="brand" href="#" aria-label="Aura Tracker início" onclick="return false;">
-          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2.8 20.2 7.4v9.2L12 21.2 3.8 16.6V7.4L12 2.8Z" stroke="currentColor" stroke-width="1.7"/><path d="m8 15.9 4-8.1 4 8.1M9.7 12.8h4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span><span class="brand-name">AURA TRACKER</span><span class="brand-sub">Study command center</span></span>
-        </a>
+        
         <nav class="nav-tabs" aria-label="Navegação principal">
           <button class="nav-tab active" data-view="tasks"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Missões</button>
           <button class="nav-tab" data-view="shop"><svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M4 8h16l-1.2 12H5.2L4 8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Recompensas</button>
@@ -344,35 +341,16 @@
     </header>
 
     <main class="container" id="tasksView">
-      <section class="hero">
-        <div>
-          <div class="eyebrow"><span class="eyebrow-dot"></span> Seu progresso começa agora</div>
-          <h1>Central de estudos<span style="color:var(--green)">.</span></h1>
-          <p>Disciplina diária. Evolução constante. Uma missão de cada vez.</p>
-        </div>
-        <div class="hero-buttons">
-          <button class="btn" id="exportCsvButton"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar CSV</button>
-          <button class="btn" id="backupButton"><svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m-4 4 4-4 4 4M5 14v5h14v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Backup</button>
-          <button class="btn btn-primary" id="heroAddButton"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Nova missão</button>
-        </div>
-      </section>
+      
 
       <section class="stats-grid" aria-label="Resumo do progresso">
-        <article class="stat-card" style="--stat-color:var(--green);--stat-bg:rgba(83,224,160,.1);--glow:rgba(83,224,160,.07)">
+        <article class="stat-card" style="--stat-color:var(--green);--stat-bg:rgba(46,160,112,.1);--glow:rgba(46,160,112,.07)">
           <div class="stat-head"><span>XP ACUMULADO</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><path d="m12 2 2.7 6.1 6.6.6-5 4.3 1.5 6.5-5.8-3.5-5.8 3.5 1.5-6.5-5-4.3 6.6-.6L12 2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span></div>
           <div class="stat-value" id="xpTotal">0 <span style="font-size:12px;color:var(--muted);font-weight:650">XP</span></div><div class="stat-foot" id="xpFoot">Comece sua primeira missão</div>
         </article>
         <article class="stat-card" style="--stat-color:var(--blue);--stat-bg:rgba(124,172,249,.1);--glow:rgba(124,172,249,.06)">
           <div class="stat-head"><span>MISSÕES CONCLUÍDAS</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
           <div class="stat-value" id="completedTotal">0</div><div class="stat-foot" id="completedFoot">de 0 missões cadastradas</div>
-        </article>
-        <article class="stat-card" style="--stat-color:var(--yellow);--stat-bg:rgba(245,201,107,.1);--glow:rgba(245,201,107,.05)">
-          <div class="stat-head"><span>MOEDAS DISPONÍVEIS</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M15 8.5c-.7-.6-1.7-1-3-1-1.8 0-3 .9-3 2.1 0 3 6 1.2 6 4.4 0 1.3-1.3 2.5-3.3 2.5-1.1 0-2.2-.4-3.1-1.1M12 5.5v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></div>
-          <div class="stat-value" id="coinsStat">0</div><div class="stat-foot">Troque moedas por recompensas</div>
-        </article>
-        <article class="stat-card" style="--stat-color:var(--purple);--stat-bg:rgba(185,160,255,.1);--glow:rgba(185,160,255,.06)">
-          <div class="stat-head"><span>PRÓXIMA PATENTE</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.4l6.1-.9L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span></div>
-          <div class="stat-value" id="nextRankValue" style="font-size:20px">2º Tenente</div><div class="stat-foot" id="nextRankFoot">501 XP para evoluir</div>
         </article>
       </section>
 
@@ -382,12 +360,13 @@
           <select class="select-control" id="progressCycle" aria-label="Selecionar ciclo de progresso"><option value="all">Todos os ciclos</option><option value="1">1º Ciclo</option><option value="2">2º Ciclo</option><option value="3">3º Ciclo</option><option value="4">4º Ciclo</option></select>
         </div>
         <div class="progress-overview">
-          <div>
-            <div class="progress-numbers"><span id="progressCopy">0 de 0 missões concluídas</span><strong id="progressPercent">0%</strong></div>
-            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-            <div class="cycle-mini-stats"><span class="mini-pill" id="pendingPill">0 pendentes</span><span class="mini-pill" id="cycleCountPill">4 ciclos ativos</span><span class="mini-pill" id="duePill">0 com prazo definido</span></div>
+          <div class="percent-ring">
+            <div class="ring" id="progressRing" style="--p:0%"><span id="ringPercent">0%</span></div>
+            <div class="ring-label">
+              <strong id="ringCycleTitle" style="font-size:14px;color:var(--text);display:block;margin-bottom:2px">Conclusão do ciclo atual</strong>
+              <span id="ringSubtext" style="font-size:12px;color:var(--muted)">0 para concluir</span>
+            </div>
           </div>
-          <div class="percent-ring"><div class="ring" id="progressRing" style="--p:0%"><span id="ringPercent">0%</span></div><div class="ring-label"><strong>Conclusão geral</strong><span id="ringSubtext">Vamos começar</span></div></div>
         </div>
       </section>
 
@@ -453,7 +432,8 @@
         <form id="duplicateCycleForm"><div class="cycle-manager-row"><div class="field"><label for="cycleFrom">Ciclo de origem</label><select id="cycleFrom"><option value="1">1º Ciclo</option><option value="2">2º Ciclo</option><option value="3">3º Ciclo</option><option value="4">4º Ciclo</option></select></div><div class="field"><label for="cycleTo">Ciclo de destino</label><select id="cycleTo"><option value="2">2º Ciclo</option><option value="3">3º Ciclo</option><option value="4">4º Ciclo</option><option value="1">1º Ciclo</option></select></div><div class="field"><label for="cycleOffset">+ Dias</label><input id="cycleOffset" type="number" min="-3650" max="3650" step="1" value="30"></div></div><button class="btn btn-primary" type="submit"><svg viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="1.7"/></svg> Duplicar missões</button></form>
         <div class="divider"></div>
         <div class="danger-zone"><h3 class="subsection-title" style="color:var(--red)">Zona de exclusão</h3><p class="subsection-copy">Remove todas as missões daquele ciclo. Essa ação não pode ser desfeita.</p><form id="deleteCycleForm" style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap"><div class="field" style="flex:1;min-width:140px"><label for="cycleDelete">Ciclo para excluir</label><select id="cycleDelete"><option value="1">1º Ciclo</option><option value="2">2º Ciclo</option><option value="3">3º Ciclo</option><option value="4">4º Ciclo</option></select></div><button class="btn btn-danger" type="submit"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M10 11v6M14 11v6M5.5 7l1 14h11l1-14M9 7V4h6v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg> Excluir ciclo</button></form></div>
-        <div class="divider"></div><h3 class="subsection-title">Dados e privacidade</h3><p class="subsection-copy">O progresso fica salvo neste navegador. Use o backup para levar os dados a outro dispositivo.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-small" id="cycleBackupButton">Baixar backup JSON</button><button class="btn btn-small" id="cycleRestoreButton">Restaurar backup JSON</button><input class="hidden" type="file" id="backupFileInput" accept=".json,application/json"></div>
+        <div class="divider"></div><h3 class="subsection-title">Dados e privacidade</h3><p class="subsection-copy">O progresso fica salvo neste navegador. Use o backup para levar os dados a outro dispositivo.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-small" id="exportCsvButton"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Exportar CSV</button>
+          <button class="btn btn-small" id="cycleBackupButton"><svg viewBox="0 0 24 24" fill="none" style="width:14px;height:14px"><path d="M12 16V4m-4 4 4-4 4 4M5 14v5h14v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Baixar backup</button><button class="btn btn-small" id="cycleRestoreButton">Restaurar backup JSON</button><input class="hidden" type="file" id="backupFileInput" accept=".json,application/json"></div>
       </div>
     </div>
   </div>
@@ -748,22 +728,22 @@
       }
       function renderProfile() {
         const name = (state.profile.name || 'Estudante').trim() || 'Estudante';
-        $('#profileName').textContent = name;
-        $('#avatarText').textContent = [...name][0].toUpperCase();
-        $('#profileRank').textContent = rankForXp().name;
-        $('#coinBalance').textContent = state.coins.toLocaleString('pt-BR');
-        $('#coinsStat').textContent = state.coins.toLocaleString('pt-BR');
-        $('#shopCoinBalance').textContent = state.coins.toLocaleString('pt-BR');
-        $('#xpTotal').innerHTML = `${state.xp.toLocaleString('pt-BR')} <span style="font-size:12px;color:var(--muted);font-weight:650">XP</span>`;
+        if ($('#profileName')) $('#profileName').textContent = name;
+        if ($('#avatarText')) $('#avatarText').textContent = [...name][0].toUpperCase();
+        if ($('#profileRank')) $('#profileRank').textContent = rankForXp().name;
+        if ($('#coinBalance')) $('#coinBalance').textContent = state.coins.toLocaleString('pt-BR');
+        if ($('#coinsStat')) $('#coinsStat').textContent = state.coins.toLocaleString('pt-BR');
+        if ($('#shopCoinBalance')) $('#shopCoinBalance').textContent = state.coins.toLocaleString('pt-BR');
+        if ($('#xpTotal')) $('#xpTotal').innerHTML = `${state.xp.toLocaleString('pt-BR')} <span style="font-size:12px;color:var(--muted);font-weight:650">XP</span>`;
         const n = nextRank();
         if (n) {
-          $('#nextRankValue').textContent = n.name;
-          $('#nextRankFoot').textContent = `${Math.max(0, n.min - state.xp)} XP para evoluir`;
-          $('#xpFoot').textContent = `${Math.max(0, n.min - state.xp)} XP até ${n.name}`;
+          if ($('#nextRankValue')) $('#nextRankValue').textContent = n.name;
+          if ($('#nextRankFoot')) $('#nextRankFoot').textContent = `${Math.max(0, n.min - state.xp)} XP para evoluir`;
+          if ($('#xpFoot')) $('#xpFoot').textContent = `${Math.max(0, n.min - state.xp)} XP até ${n.name}`;
         } else {
-          $('#nextRankValue').textContent = 'Marechal';
-          $('#nextRankFoot').textContent = 'Patente máxima alcançada';
-          $('#xpFoot').textContent = 'Patente máxima alcançada';
+          if ($('#nextRankValue')) $('#nextRankValue').textContent = 'Marechal';
+          if ($('#nextRankFoot')) $('#nextRankFoot').textContent = 'Patente máxima alcançada';
+          if ($('#xpFoot')) $('#xpFoot').textContent = 'Patente máxima alcançada';
         }
         renderRanks();
       }
@@ -773,18 +753,23 @@
         const done = tasks.filter(t => t.done).length;
         const total = tasks.length;
         const pct = total ? Math.round(done / total * 100) : 0;
-        $('#progressCopy').textContent = `${done} de ${total} missões concluídas`;
-        $('#progressPercent').textContent = `${pct}%`;
-        $('#progressFill').style.width = `${pct}%`;
-        $('#ringPercent').textContent = `${pct}%`;
-        $('#progressRing').style.setProperty('--p', `${pct}%`);
-        $('#pendingPill').textContent = `${total - done} pendentes`;
+        if ($('#progressCopy')) $('#progressCopy').textContent = `${done} de ${total} missões concluídas`;
+        if ($('#progressPercent')) $('#progressPercent').textContent = `${pct}%`;
+        if ($('#progressFill')) $('#progressFill').style.width = `${pct}%`;
+        if ($('#ringPercent')) $('#ringPercent').textContent = `${pct}%`;
+        if ($('#progressRing')) $('#progressRing').style.setProperty('--p', `${pct}%`);
+        if ($('#pendingPill')) $('#pendingPill').textContent = `${total - done} pendentes`;
         const activeCycles = new Set(state.tasks.map(t => String(t.cycle))).size;
-        $('#cycleCountPill').textContent = `${activeCycles} ciclo(s) com missões`;
-        $('#duePill').textContent = `${tasks.filter(t => t.deadline).length} com prazo definido`;
-        $('#ringSubtext').textContent = total ? `${total - done} para concluir` : 'Vamos começar';
-        $('#completedTotal').textContent = completedTasks().length.toLocaleString('pt-BR');
-        $('#completedFoot').textContent = `de ${state.tasks.length.toLocaleString('pt-BR')} missões cadastradas`;
+        if ($('#cycleCountPill')) $('#cycleCountPill').textContent = `${activeCycles} ciclo(s) com missões`;
+        if ($('#duePill')) $('#duePill').textContent = `${tasks.filter(t => t.deadline).length} com prazo definido`;
+        if ($('#ringCycleTitle')) {
+          $('#ringCycleTitle').textContent = cycle === 'all' ? 'Conclusão do ciclo atual' : `Conclusão do ${cycle}º ciclo`;
+        }
+        if ($('#ringSubtext')) {
+          $('#ringSubtext').textContent = total ? `${total - done} para concluir` : '0 para concluir';
+        }
+        if ($('#completedTotal')) $('#completedTotal').textContent = completedTasks().length.toLocaleString('pt-BR');
+        if ($('#completedFoot')) $('#completedFoot').textContent = `de ${state.tasks.length.toLocaleString('pt-BR')} missões cadastradas`;
       }
       function taskCard(task) {
         const pts = taskPoints(task);
