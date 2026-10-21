@@ -1169,7 +1169,7 @@
         let _user  = JSON.parse(localStorage.getItem('gh_user') || sessionStorage.getItem('gh_user') || 'null');
 
         function login() {
-          const st = crypto.randomUUID();
+          const st = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '-' + Math.random());
           sessionStorage.setItem('oauth_state', st);
           localStorage.setItem('oauth_state', st);
           const p = new URLSearchParams({
@@ -1192,9 +1192,19 @@
           showLoginScreen();
         }
 
-        function getToken() { return _token; }
-        function getUser()  { return _user;  }
-        function isAuthenticated() { return !!_token && !!_user; }
+        function getToken() {
+          if (!_token || _token === 'undefined' || _token === 'null') return null;
+          return _token;
+        }
+
+        function getUser()  {
+          if (!getToken()) return null;
+          return _user;
+        }
+
+        function isAuthenticated() {
+          return !!getToken() && !!_user;
+        }
 
         async function handleCallback() {
           const p     = new URLSearchParams(location.search);
@@ -1233,148 +1243,47 @@
       window.__auraLogin = () => Auth.login();
 
       // =====================================================================
-      // GistStorage - Gist privado como banco de dados
+      // GistStorage - Persistência na nuvem via Cloudflare Worker
       // =====================================================================
       const GistStorage = (() => {
-        let _gistId = localStorage.getItem('gist_id') || sessionStorage.getItem('gist_id') || null;
-
-        async function ghFetch(path, opts = {}) {
+        async function load() {
           const token = Auth.getToken();
           if (!token) throw new Error('Usuario nao autenticado.');
-
-          const headers = {
-            'Authorization': 'Bearer ' + token,
-          };
-          if (opts.body) {
-            headers['Content-Type'] = 'application/json';
-          }
-
-          const r = await fetch('https://api.github.com' + path, {
-            ...opts,
-            headers,
+          const res = await fetch(WORKER_URL + '/data', {
+            headers: { 'Authorization': 'Bearer ' + token },
           });
-
-          if (!r.ok) {
-            let errorDetail = 'Status ' + r.status;
-            try {
-              const errJson = await r.json();
-              if (errJson && errJson.message) errorDetail = errJson.message;
-            } catch(e) {
-              errorDetail = r.statusText || errorDetail;
-            }
-            throw new Error(`GitHub API (${r.status}): ${errorDetail}`);
+          const json = await res.json();
+          if (!res.ok || json.error) {
+            throw new Error(json.error || 'Erro na nuvem (' + res.status + ')');
           }
-          return r.status === 204 ? null : r.json();
-        }
-
-        async function findOrCreate() {
-          if (_gistId) {
-            try {
-              const existing = await ghFetch('/gists/' + _gistId);
-              if (existing && existing.id) return existing.id;
-            } catch (err) {
-              console.warn('[GistStorage] Gist em cache invalido ou inacessivel, buscando novamente...', err);
-              _gistId = null;
-              localStorage.removeItem('gist_id');
-              sessionStorage.removeItem('gist_id');
-            }
+          if (json.gist_id) {
+            localStorage.setItem('gist_id', json.gist_id);
           }
-
-          try {
-            const gists = await ghFetch('/gists?per_page=100');
-            if (Array.isArray(gists)) {
-              const found = gists.find(g => g.files && g.files[GIST_FILENAME]);
-              if (found && found.id) {
-                _gistId = found.id;
-                localStorage.setItem('gist_id', _gistId);
-                sessionStorage.setItem('gist_id', _gistId);
-                return _gistId;
-              }
-            }
-          } catch(err) {
-            console.warn('[GistStorage] Falha ao listar gists existentes:', err);
-          }
-
-          const created = await ghFetch('/gists', {
-            method: 'POST',
-            body: JSON.stringify({
-              description: 'Aura Tracker - dados de progresso',
-              public: false,
-              files: {
-                [GIST_FILENAME]: {
-                  content: JSON.stringify(defaultState())
-                }
-              }
-            }),
-          });
-
-          if (!created || !created.id) {
-            throw new Error('Nao foi possivel criar o Gist de dados no GitHub.');
-          }
-
-          _gistId = created.id;
-          localStorage.setItem('gist_id', _gistId);
-          sessionStorage.setItem('gist_id', _gistId);
-          return _gistId;
-        }
-
-        async function load() {
-          let id = await findOrCreate();
-          try {
-            const gist = await ghFetch('/gists/' + id);
-            const file = gist && gist.files && gist.files[GIST_FILENAME];
-            if (!file) return null;
-            if (file.truncated && file.raw_url) {
-              const rawRes = await fetch(file.raw_url, {
-                headers: { 'Authorization': 'Bearer ' + Auth.getToken() }
-              });
-              return await rawRes.json();
-            }
-            return file.content ? JSON.parse(file.content) : null;
-          } catch (err) {
-            if (String(err.message).includes('404')) {
-              _gistId = null;
-              localStorage.removeItem('gist_id');
-              sessionStorage.removeItem('gist_id');
-              return null;
-            }
-            throw err;
-          }
+          return json.data;
         }
 
         async function save(data) {
-          let id = await findOrCreate();
-          const body = JSON.stringify({
-            description: 'Aura Tracker - dados de progresso',
-            files: {
-              [GIST_FILENAME]: {
-                content: JSON.stringify(data)
-              }
-            }
+          const token = Auth.getToken();
+          if (!token) throw new Error('Usuario nao autenticado.');
+          const res = await fetch(WORKER_URL + '/data', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + token,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ data }),
           });
-
-          try {
-            await ghFetch('/gists/' + id, {
-              method: 'PATCH',
-              body
-            });
-          } catch (err) {
-            if (String(err.message).includes('404')) {
-              _gistId = null;
-              localStorage.removeItem('gist_id');
-              sessionStorage.removeItem('gist_id');
-              id = await findOrCreate();
-              await ghFetch('/gists/' + id, {
-                method: 'PATCH',
-                body
-              });
-            } else {
-              throw err;
-            }
+          const json = await res.json();
+          if (!res.ok || json.error) {
+            throw new Error(json.error || 'Erro na nuvem (' + res.status + ')');
           }
+          if (json.gist_id) {
+            localStorage.setItem('gist_id', json.gist_id);
+          }
+          return true;
         }
 
-        return { load, save, getGistId: () => _gistId };
+        return { load, save };
       })();
 
       // =====================================================================
@@ -1398,7 +1307,6 @@
           }
         }, 1200);
       }
-
 
       // Wrapper sobre saveState original para tambem sincronizar
       const _origSaveState = saveState;
@@ -1481,7 +1389,12 @@
             }
           } catch (err) {
             console.warn('[Auth] remote load failed, using local:', err);
-            toast('Aviso', 'Usando dados locais - falha ao conectar na nuvem.', 'neutral');
+            if (String(err.message).includes('401') || String(err.message).includes('403') || String(err.message).includes('Bad credentials')) {
+              toast('Sessao expirada', 'Seu acesso expirou ou precisa de permissao. Faca login novamente.', 'neutral');
+              Auth.logout();
+              return;
+            }
+            toast('Aviso na nuvem', err.message || 'Usando dados locais.', 'neutral');
           }
           hideLoginScreen();
           renderAll();
@@ -1494,7 +1407,7 @@
 
       bootstrapAuth();
 
-      // --- FIM DO BLOCO AUTH ---
+            // --- FIM DO BLOCO AUTH ---
       // Inicialização: acrescenta as missões do CSV uma única vez, preservando tarefas existentes.
       seedInitialMissions();
       renderAll();
