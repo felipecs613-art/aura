@@ -109,7 +109,9 @@ Antes de trocar a hospedagem, baixe um backup JSON no Aura antigo. O armazenamen
 
 Após entrar na conta correta, use **Configurações → Restaurar backup JSON**. Se o cache antigo estiver na mesma origem, **Importar dados anteriores deste navegador** permite importação explícita. O cache antigo é preservado e nunca associado automaticamente a uma conta. Credenciais antigas `gh_token`, `gh_user`, `gist_id` e `oauth_state` são removidas do navegador.
 
-CSV conserva ciclo, prazo e conclusão ao importar arquivos exportados pelo Aura, mas não altera o saldo de XP/moedas nem substitui backup completo. Use JSON para transportar todo o estado.
+Em Configurações, **Exportar missões CSV** inclui os campos da missão, identificadores, concurso vinculado e seus dados (banca, inscrição, edital, prova, taxa e situação), acertos dos quatro ciclos, datas de criação/atualização e histórico em JSON. **Exportar concursos CSV** inclui todos os concursos, mesmo os que não têm missões. Ambos usam UTF-8 com BOM e ponto e vírgula, compatíveis com planilhas brasileiras.
+
+**Importar CSV** aceita os dois formatos e os CSVs antigos de missões. Conserva os novos campos, recria os vínculos e não sobrescreve registros diferentes que tenham o mesmo ID. A importação é aditiva e não altera XP/moedas; um concurso atual já escolhido é mantido. Recompensas, resgates, perfil e configurações continuam disponíveis no backup JSON completo. Use JSON para transportar todo o estado.
 
 ## Validação
 

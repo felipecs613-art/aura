@@ -2,6 +2,7 @@ import { emptyState, validateState } from './shared/state.js';
 import { api, SyncClient } from './shared/client.js';
 import { startLogin, finishLogin, clearSession } from './shared/auth.js';
 import { registrationAlerts } from './shared/registration.js';
+import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.js';
 
     (() => {
       'use strict';
@@ -712,84 +713,31 @@ import { registrationAlerts } from './shared/registration.js';
         if (!confirm(`Excluir a recompensa "${reward.name}"? O histórico de resgates será mantido.`)) return;
         state.rewards = state.rewards.filter(r => r.id !== id); if (!saveState()) { renderAll(); return; } renderShop(); toast('Recompensa excluída', 'O item foi removido da loja.', 'neutral');
       }
-      function parseCsv(text) {
-        const input = text.replace(/^\uFEFF/, '');
-        // Planilhas brasileiras normalmente usam ponto e vírgula; outros CSVs usam vírgula.
-        // Detecta o separador na primeira linha, ignorando separadores dentro de aspas.
-        let commas = 0, semicolons = 0, quotedHeader = false;
-        for (let i = 0; i < input.length && input[i] !== '\n' && input[i] !== '\r'; i++) {
-          if (input[i] === '"') {
-            if (quotedHeader && input[i + 1] === '"') i++;
-            else quotedHeader = !quotedHeader;
-          } else if (!quotedHeader && input[i] === ',') commas++;
-          else if (!quotedHeader && input[i] === ';') semicolons++;
-        }
-        const delimiter = semicolons > commas ? ';' : ',';
-        const rows = []; let row = []; let cell = ''; let quoted = false;
-        for (let i = 0; i < input.length; i++) {
-          const ch = input[i];
-          if (ch === '"') {
-            if (quoted && input[i + 1] === '"') { cell += '"'; i++; }
-            else quoted = !quoted;
-          } else if (ch === delimiter && !quoted) { row.push(cell); cell = ''; }
-          else if ((ch === '\n' || ch === '\r') && !quoted) {
-            if (ch === '\r' && input[i + 1] === '\n') i++;
-            row.push(cell); if (row.some(v => v.trim() !== '')) rows.push(row); row = []; cell = '';
-          } else cell += ch;
-        }
-        row.push(cell); if (row.some(v => v.trim() !== '')) rows.push(row);
-        return rows;
-      }
       function importCsvFile(file) {
         const reader = new FileReader();
         reader.onload = () => {
           try {
-            const rows = parseCsv(String(reader.result || ''));
-            if (!rows.length) { toast('CSV vazio', 'O arquivo não contém linhas para importar.', 'neutral'); return; }
-            const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-            const headerWords = rows[0].map(norm);
-            const hasHeader = headerWords.some(v => /item do edital|titulo|title|link do notebook|disciplina|materia|relevancia|importancia/.test(v));
-            const headers = hasHeader ? headerWords : [];
-            const findCol = regexes => headers.findIndex(h => regexes.some(re => re.test(h)));
-            const titleCol = hasHeader ? findCol([/item do edital/, /^titulo$/, /^title$/]) : 0;
-            const linkCol = hasHeader ? findCol([/link do notebook/, /^link$/, /notebook/, /url/]) : 1;
-            const subjectCol = hasHeader ? findCol([/^disciplina$/, /^materia$/, /subject/]) : 2;
-            const cycleCol = hasHeader ? findCol([/^ciclo$/, /^cycle$/]) : -1;
-            const deadlineCol = hasHeader ? findCol([/^prazo$/, /^deadline$/]) : -1;
-            const doneCol = hasHeader ? findCol([/^concluida$/, /^done$/]) : -1;
-            const importanceCol = hasHeader ? findCol([/relevancia/, /importancia/, /importance/]) : 3;
-            const dataRows = hasHeader ? rows.slice(1) : rows;
-            const imported = [];
-            dataRows.forEach(cols => {
-              const title = String(cols[titleCol >= 0 ? titleCol : 0] || '').trim();
-              if (!title) return;
-              const linkRaw = linkCol >= 0 ? String(cols[linkCol] || '').trim() : '';
-              const normalizedImportance = norm(importanceCol >= 0 ? cols[importanceCol] : 'medio');
-              let importance = 'medium';
-              if (/alta|high|^h$/.test(normalizedImportance)) importance = 'high';
-              else if (/baixa|low|^l$/.test(normalizedImportance)) importance = 'low';
-              const subject = subjectCol >= 0 ? String(cols[subjectCol] || '').trim() : '';
-              imported.push({ id: makeId(), title, link: linkRaw ? normalizeUrl(linkRaw) : '', subject, deadline: deadlineCol >= 0 ? String(cols[deadlineCol] || '').trim() : '', cycle: Math.min(4, Math.max(1, Number(String(cols[cycleCol] || '1').match(/[1-4]/)?.[0] || 1))), importance, done: doneCol >= 0 && /^(sim|true|1)$/.test(norm(cols[doneCol])), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-            });
-            if (!imported.length) { toast('Nenhuma missão importada', 'Confira o cabeçalho e a primeira coluna do CSV.', 'neutral'); return; }
-            const rejectedLinks = imported.filter(t => t.link === '' && t.title && dataRows.some(r => String(r[linkCol] || '').trim() && String(r[titleCol >= 0 ? titleCol : 0] || '').trim() === t.title)).length;
-            state = validateState({ ...state, tasks: [...state.tasks, ...imported] }); if (!saveState()) { renderAll(); return; } renderAll();
-            toast(`${imported.length} missão(ões) importada(s)`, `Ciclos, prazos e conclusões preservados. XP e moedas não foram alterados.${rejectedLinks ? ` ${rejectedLinks} link(s) inválido(s) foram ignorados.` : ''}`);
-          } catch (error) { console.error(error); toast('Erro ao importar CSV', 'Confira se o arquivo está no formato CSV.', 'neutral'); }
-          $('#csvFileInput').value = '';
+            const result = importAuraCsv(String(reader.result || ''), state, { makeId });
+            state = result.state;
+            if (!saveState()) { renderAll(); return; }
+            renderAll();
+            toast('CSV importado', `${result.tasksAdded} miss\u00e3o(\u00f5es) e ${result.examsAdded} concurso(s) adicionados. XP e moedas preservados.${result.invalidLinks ? ` ${result.invalidLinks} link(s) de notebook inv\u00e1lido(s) ignorado(s).` : ''}`);
+          } catch (error) { toast('Erro ao importar CSV', error.message, 'neutral'); }
+          finally { $('#csvFileInput').value = ''; }
         };
-        reader.onerror = () => { toast('Falha na leitura', 'Não foi possível abrir este arquivo.', 'neutral'); $('#csvFileInput').value = ''; };
+        reader.onerror = () => { toast('Falha na leitura', 'Selecione o arquivo novamente.', 'neutral'); $('#csvFileInput').value = ''; };
         reader.readAsText(file, 'UTF-8');
       }
       function downloadBlob(content, filename, type) {
         const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
       function exportCsv() {
-        const headers = ['Item do Edital','Link do Notebook','Disciplina','Importância / Relevância','Ciclo','Prazo','Concluída'];
-        const quote = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
-        const lines = [headers, ...state.tasks.map(t => [t.title, t.link, t.subject, IMPORTANCE[t.importance]?.label || 'Média', CYCLE_NAMES[t.cycle] || '1º Ciclo', t.deadline, t.done ? 'Sim' : 'Não'])].map(row => row.map(quote).join(';')).join('\r\n');
-        downloadBlob('\uFEFF' + lines, `aura-tracker-missoes-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
+        downloadBlob(exportMissionsCsv(state), `aura-tracker-missoes-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
         toast('CSV exportado', 'O arquivo foi preparado para download.');
+      }
+      function exportExams() {
+        downloadBlob(exportExamsCsv(state), `aura-tracker-concursos-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
+        toast('Concursos exportados', 'Inclui todos os concursos, mesmo sem missões vinculadas.');
       }
       function backupData() {
         const payload = { ...state, exportedAt: new Date().toISOString(), app: 'Aura Tracker' };
@@ -972,6 +920,7 @@ import { registrationAlerts } from './shared/registration.js';
       $('#importButton')?.addEventListener('click', () => $('#csvFileInput').click());
       $('#csvFileInput')?.addEventListener('change', event => { const file = event.target.files?.[0]; if (file) importCsvFile(file); });
       $('#exportCsvButton')?.addEventListener('click', exportCsv);
+      $('#exportExamsCsvButton')?.addEventListener('click', exportExams);
       $('#cycleBackupButton')?.addEventListener('click', backupData);
       $('#cycleRestoreButton')?.addEventListener('click', () => $('#backupFileInput').click());
       $('#backupFileInput')?.addEventListener('change', event => { const file = event.target.files?.[0]; if (file) restoreBackup(file); });
