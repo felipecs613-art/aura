@@ -39,6 +39,11 @@
       </aside>
 </div>
     <main class="container" id="tasksView">
+      <section id="registrationAlerts" class="registration-alerts hidden" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="registrationAlertsTitle">
+        <h2 id="registrationAlertsTitle">Inscrições perto do fim</h2>
+        <p>Você ainda não marcou a inscrição como realizada nestes concursos.</p>
+        <div id="registrationAlertList"></div>
+      </section>
 
 
       <section class="stats-grid" aria-label="Resumo do progresso">
@@ -85,7 +90,9 @@
           <div class="exam-form-grid">
             <label class="exam-field exam-wide">Nome do concurso<input class="exam-input" id="examName" type="text" maxlength="150" placeholder="Ex.: TCE Goiás — Analista de TI"></label>
             <label class="exam-field exam-wide">Banca organizadora<input class="exam-input" id="examBoard" type="text" maxlength="100" placeholder="Ex.: FCC"></label>
-            <label class="exam-field">Data de inscrição<input class="exam-input" id="examRegistration" type="date"></label>
+            <label class="exam-field">Início das inscrições<input class="exam-input" id="examRegistration" type="date"></label>
+            <label class="exam-field">Último dia para se inscrever<input class="exam-input" id="examRegistrationEnd" type="date"></label>
+            <label class="exam-field exam-wide">Link do edital<input class="exam-input" id="examNoticeUrl" type="text" maxlength="2000" inputmode="url" placeholder="https://..." aria-describedby="examNoticeHint"><small id="examNoticeHint">Opcional. Cole o endereço da página ou do PDF do edital.</small></label>
             <label class="exam-field">Taxa de inscrição (R$)<input class="exam-input" id="examFee" type="text" inputmode="decimal" placeholder="Ex.: 120,00"></label>
             <label class="exam-field exam-wide">Data da prova<input class="exam-input" id="examDate" type="date"></label>
             <label class="exam-registration-check exam-wide"><input id="examRegistered" type="checkbox"><span>✅ Inscrição realizada<small>Marque quando confirmar sua inscrição neste concurso.</small></span></label>

@@ -119,7 +119,7 @@ async function handle(request, env) {
       if (request.method === 'POST' && origin !== url.origin && !fromPages) throw new HttpError(403, 'Origem obrigatória.');
 
       if (url.pathname === '/api/health' && request.method === 'GET') {
-        return json({ ok: true, app: APP, schemaVersion: 2, oauthConfigured: !!env.GITHUB_CLIENT_ID && !!env.GITHUB_CLIENT_SECRET });
+        return json({ ok: true, app: APP, schemaVersion: 3, oauthConfigured: !!env.GITHUB_CLIENT_ID && !!env.GITHUB_CLIENT_SECRET });
       }
 
       if (url.pathname === '/api/auth/start' && request.method === 'POST') {

@@ -6,7 +6,7 @@ import { AuraStore } from '../worker/index.js';
 const task = () => ({ id: 'task-1', title: 'Redes', subject: 'TI', link: 'https://example.com', deadline: '', cycle: 2, importance: 'high', done: false, createdAt: '2026-10-21T12:00:00Z', updatedAt: '2026-10-22T12:00:00Z' });
 const state20 = () => ({
   ...emptyState(), xp: 450, coins: 120, currentCycle: 2, currentExamId: 'exam-1', tceGoSeeded: true,
-  exams: [{ id: 'exam-1', name: 'Concurso de TI', board: 'FCC', registrationDate: '2026-10-05', fee: 120.5, examDate: '2027-01-17', registered: true, createdAt: '2026-10-21T12:00:00Z' }],
+  exams: [{ id: 'exam-1', name: 'Concurso de TI', board: 'FCC', registrationDate: '2026-10-05', registrationStartDate: '2026-10-05', registrationEndDate: '2026-11-05', noticeUrl: 'https://example.com/edital.pdf', fee: 120.5, examDate: '2027-01-17', registered: true, createdAt: '2026-10-21T12:00:00Z' }],
   tasks: [{ ...task(), examId: 'exam-1', accuracyByCycle: { '1': 75.5, '2': 0 }, history: [
     { type: 'status', at: '2026-10-21T12:00:00Z', done: true, accuracy: 75.5, cycle: 1 },
     { type: 'cycle_transfer', at: '2026-10-21T12:00:00Z', from: 1, to: 2, previousDone: true, previousDeadline: '2026-10-20', previousAccuracy: 75.5 },
@@ -17,7 +17,7 @@ const state20 = () => ({
 test('dados anteriores migram sem perder tarefas, saldos, recompensas e resgates', () => {
   const old = { version: 1, profile: { name: 'Felipe' }, xp: 300, coins: 45, tasks: [{ ...task(), done: true }], rewards: [{ id: 'reward', name: 'Café', cost: 10, description: '', icon: '☕', createdAt: '' }], redemptions: [{ id: 'redemption', rewardId: 'reward', name: 'Café', cost: 10, date: '2026-10-21T12:00:00Z' }], seededMissionSets: ['TCE_GO_Analise_FCC_Espacado_v1'] };
   const migrated = validateState(old);
-  assert.equal(migrated.version, 2);
+  assert.equal(migrated.version, 3);
   for (const key of ['xp', 'coins', 'profile', 'rewards', 'redemptions', 'seededMissionSets']) assert.deepEqual(migrated[key], old[key]);
   for (const [key, value] of Object.entries(old.tasks[0])) assert.deepEqual(migrated.tasks[0][key], value);
   assert.deepEqual(migrated.tasks[0].history, []);

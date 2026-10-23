@@ -45,7 +45,7 @@ test('Pages completa OAuth com PKCE e usa sessão Aura nas leituras e gravaçõe
   await expect(page.locator('#profileName')).toHaveText('Alice');
   await expect(page.locator('#syncIndicator')).toHaveText('Sincronizado');
   expect(reads).toBeGreaterThan(0); expect(writes).toBeGreaterThan(0);
-  expect(saved.version).toBe(2); expect(saved.tasks.length).toBeGreaterThan(0);
+  expect(saved.version).toBe(3); expect(saved.tasks.length).toBeGreaterThan(0);
   expect(await page.evaluate(() => localStorage.getItem('gh_token'))).toBeNull();
   expect(await page.evaluate(() => sessionStorage.getItem('aura.session.v2'))).toBe(token);
   await expect(page).not.toHaveURL(/code=/);

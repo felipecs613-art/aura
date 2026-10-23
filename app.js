@@ -1,6 +1,7 @@
 import { emptyState, validateState } from './shared/state.js';
 import { api, SyncClient } from './shared/client.js';
 import { startLogin, finishLogin, clearSession } from './shared/auth.js';
+import { registrationAlerts } from './shared/registration.js';
 
     (() => {
       'use strict';
@@ -828,21 +829,34 @@ import { startLogin, finishLogin, clearSession } from './shared/auth.js';
         const days=examDays(item.examDate);
         const countdown=days===null?'<strong>—</strong><span>Sem data</span>':days<0?`<strong>${Math.abs(days)}</strong><span>dias desde a prova</span>`:days===0?'<strong>Hoje</strong><span>Dia da prova!</span>':`<strong>${days}</strong><span>dias para a prova</span>`;
         const fee=Number(item.fee);
-        return `<article class="exam-card ${isCurrent?'current':''}">
+        return `<article class="exam-card ${isCurrent?'current':''}" data-exam-id="${escapeAttr(item.id)}" tabindex="-1">
           ${isCurrent?'<div class="exam-tag">★ PRIORIDADE ATUAL</div>':''}
           <div class="exam-card-top"><div><h3>${safeText(item.name)}</h3><div style="font-size:12px;color:var(--muted)">Banca: <strong>${safeText(item.board||'Não informada')}</strong></div></div><div class="exam-countdown">${countdown}</div></div>
           <div class="exam-registration-status ${item.registered?'registered':''}">${item.registered?'✅ INSCRIÇÃO REALIZADA':'○ INSCRIÇÃO NÃO REALIZADA'}</div>
-          <div class="exam-details"><div><small>Inscrição</small><strong>${examDateText(item.registrationDate)}</strong></div><div><small>Taxa de inscrição</small><strong>${item.fee!==''&&item.fee!=null&&Number.isFinite(fee)?fee.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Não informada'}</strong></div><div><small>Data da prova</small><strong>${examDateText(item.examDate)}</strong></div><div><small>Status</small><strong>${isCurrent?'Concurso atual':'No radar'}</strong></div></div>
+          <div class="exam-details"><div><small>Início das inscrições</small><strong>${examDateText(item.registrationStartDate ?? item.registrationDate)}</strong></div><div><small>Último dia para se inscrever</small><strong>${examDateText(item.registrationEndDate)}</strong></div><div><small>Taxa de inscrição</small><strong>${item.fee!==''&&item.fee!=null&&Number.isFinite(fee)?fee.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Não informada'}</strong></div><div><small>Data da prova</small><strong>${examDateText(item.examDate)}</strong></div><div><small>Status</small><strong>${isCurrent?'Concurso atual':'No radar'}</strong></div></div>
+          ${normalizeUrl(item.noticeUrl) ? `<a class="btn btn-small" href="${escapeAttr(normalizeUrl(item.noticeUrl))}" target="_blank" rel="noopener noreferrer">Abrir edital ${iconSvg('external')}</a>` : ''}
           <div class="exam-actions">${isCurrent?'':`<button class="btn btn-small btn-primary" type="button" data-exam-action="promote" data-exam-id="${escapeAttr(item.id)}">★ Tornar atual</button>`}<button class="btn btn-small" type="button" data-exam-action="toggle-registration" data-exam-id="${escapeAttr(item.id)}">${item.registered?'↩ Desmarcar inscrição':'✓ Marcar inscrição realizada'}</button><button class="btn btn-small" type="button" data-exam-action="edit" data-exam-id="${escapeAttr(item.id)}">Editar</button><button class="btn btn-small btn-quiet" type="button" data-exam-action="delete" data-exam-id="${escapeAttr(item.id)}">Excluir</button></div>
         </article>`;
       }
       function renderExams() {
+        renderRegistrationAlerts();
         const exams=Array.isArray(state.exams)?state.exams:[];
         $('#examCount').textContent=String(exams.length);
         const current=exams.find(e=>e.id===state.currentExamId);
         $('#currentExam').innerHTML=current?examCard(current,true):'<div class="empty-state" style="min-height:115px"><p>Nenhum concurso atual selecionado. Cadastre um concurso ou escolha “Tornar atual” no radar.</p></div>';
         const radar=exams.filter(e=>e.id!==state.currentExamId).sort((a,b)=>(a.examDate||'9999').localeCompare(b.examDate||'9999'));
         $('#radarExams').innerHTML=radar.length?radar.map(e=>examCard(e,false)).join(''):'<div class="empty-state" style="min-height:120px"><p>Nenhum outro concurso no radar.</p></div>';
+      }
+      function renderRegistrationAlerts() {
+        const alerts = registrationAlerts(state.exams || []);
+        const container = $('#registrationAlerts');
+        container.classList.toggle('hidden', alerts.length === 0);
+        const content = alerts.map(({ exam, days }) => {
+          const deadline = days === 0 ? 'Último dia de inscrição: hoje!' : days === 1 ? 'Inscrições terminam amanhã.' : `Faltam ${days} dias para o fim das inscrições.`;
+          return `<div class="registration-alert-row"><div><strong>${safeText(exam.name)}</strong><p>${safeText(deadline)} Prazo: ${examDateText(exam.registrationEndDate)}.</p></div><button class="btn btn-small" type="button" data-registration-exam="${escapeAttr(exam.id)}">Ver concurso</button></div>`;
+        }).join('');
+        const list = $('#registrationAlertList');
+        if (list.innerHTML !== content) list.innerHTML = content;
       }
       function showExamForm(item=null) {
         editingExamId=item?.id||null;
@@ -851,7 +865,9 @@ import { startLogin, finishLogin, clearSession } from './shared/auth.js';
         $('#examFormMessage').textContent = '';
         $('#examName').value=item?.name||'';
         $('#examBoard').value=item?.board||'';
-        $('#examRegistration').value=item?.registrationDate||'';
+        $('#examRegistration').value=item?.registrationStartDate ?? item?.registrationDate ?? '';
+        $('#examRegistrationEnd').value=item?.registrationEndDate||'';
+        $('#examNoticeUrl').value=item?.noticeUrl||'';
         $('#examFee').value=item?.fee!==undefined&&item?.fee!==''?String(item.fee).replace('.',','):'';
         $('#examDate').value=item?.examDate||'';
         $('#examRegistered').checked=Boolean(item?.registered);
@@ -871,6 +887,9 @@ import { startLogin, finishLogin, clearSession } from './shared/auth.js';
           const name = $('#examName').value.trim();
           const board = $('#examBoard').value.trim();
           const registrationDate = $('#examRegistration').value;
+          const registrationEndDate = $('#examRegistrationEnd').value;
+          const noticeRaw = $('#examNoticeUrl').value.trim();
+          const noticeUrl = noticeRaw ? normalizeUrl(noticeRaw) : '';
           const examDateValue = $('#examDate').value;
           const rawFee = $('#examFee').value.trim();
           const normalizedFee = rawFee.replace(/\s|R\$/gi, '').replace(/\./g, '').replace(',', '.');
@@ -878,10 +897,13 @@ import { startLogin, finishLogin, clearSession } from './shared/auth.js';
           if (!name) { reportError('Informe o nome do concurso.'); $('#examName').focus(); return; }
           if (!examDate(examDateValue)) { reportError('Informe uma data válida para a prova.'); $('#examDate').focus(); return; }
           if (registrationDate && !examDate(registrationDate)) { reportError('Confira a data de inscrição.'); return; }
+          if (registrationEndDate && !examDate(registrationEndDate)) { reportError('Confira o último dia de inscrição.'); return; }
+          if (registrationDate && registrationEndDate && registrationEndDate < registrationDate) { reportError('O último dia de inscrição deve ser igual ou posterior ao início.'); $('#examRegistrationEnd').focus(); return; }
+          if (noticeRaw && !noticeUrl) { reportError('Informe um link válido para o edital, usando http:// ou https://.'); $('#examNoticeUrl').focus(); return; }
           if (fee !== '' && (!Number.isFinite(fee) || fee < 0)) { reportError('Informe uma taxa válida, como 120,00.'); return; }
 
           const newItem = {
-            id: editingExamId || makeId(), name, board, registrationDate, fee,
+            id: editingExamId || makeId(), name, board, registrationDate, registrationStartDate: registrationDate, registrationEndDate, noticeUrl, fee,
             registered: $('#examRegistered').checked,
             examDate: examDateValue, createdAt: new Date().toISOString()
           };
@@ -924,6 +946,16 @@ import { startLogin, finishLogin, clearSession } from './shared/auth.js';
       }
 
       // Navegação e ações principais
+      $('#registrationAlertList').addEventListener('click', event => {
+        const button = event.target.closest('[data-registration-exam]');
+        if (!button) return;
+        setView('exams');
+        const card = $$('.exam-card').find(card => card.dataset.examId === button.dataset.registrationExam);
+        if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); card.focus({ preventScroll: true }); }
+      });
+      // Reavalia os prazos se a página permanecer aberta durante a virada do dia.
+      setInterval(() => { if (activeUser) renderRegistrationAlerts(); }, 60_000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden && activeUser) renderRegistrationAlerts(); });
       $$('.nav-tab').forEach(tab => tab.addEventListener('click', () => setView(tab.dataset.view)));
       $('#newExamButton')?.addEventListener('click', () => showExamForm());
       $('#examForm')?.addEventListener('submit', saveExam);

@@ -31,7 +31,7 @@ const gist = (data, id = 'abc') => ({ id, public: false, owner: { id: 1 }, files
 test('schema rejeita versões futuras, números inválidos, URLs executáveis e IDs duplicados', () => {
   const data = emptyState();
   assert.deepEqual(validateState({ ...data, injected: 'ignored' }), data);
-  assert.throws(() => validateState({ ...data, version: 3 }));
+  assert.throws(() => validateState({ ...data, version: 4 }));
   assert.throws(() => validateState({ ...data, xp: -1 }));
   const task = { id: 'one', title: 'Teste', cycle: 1, importance: 'low', done: false, link: 'javascript:alert(1)' };
   assert.throws(() => validateState({ ...data, tasks: [task] }));

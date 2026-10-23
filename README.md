@@ -14,7 +14,9 @@ No Pages, o login usa PKCE S256, `state` de uso único e uma sessão opaca do Au
 
 Para atualizar produção, execute os testes, publique o Worker com `npm run build` e `npx wrangler deploy --keep-vars`, depois publique os arquivos do projeto em `main`. Os assets do Worker incluem somente a lista explícita de `scripts/build.mjs`; nunca publique `.dev.vars` ou credenciais. Se alterar o domínio do Pages, atualize `shared/auth.js`, `wrangler.jsonc` e o callback na OAuth App.
 
-O estado usa versão 2. Dados da versão 1 são migrados preservando tarefas, saldos, recompensas e resgates. Concursos, concurso atual, ciclo atual, vínculos, acertos, histórico e marcador de concurso padrão participam de todos os salvamentos e backups JSON. Implante frontend e backend juntos para evitar que um validador antigo descarte esses campos.
+O estado usa versão 3. Dados das versões 1 e 2 são migrados preservando tarefas, saldos, recompensas e resgates. Concursos, concurso atual, ciclo atual, vínculos, acertos, histórico e marcador de concurso padrão participam de todos os salvamentos e backups JSON. Implante frontend e backend juntos para evitar que um validador antigo descarte esses campos.
+
+Cada concurso aceita início e último dia de inscrição e link do edital (HTTP/HTTPS). A data única das versões anteriores é preservada como início; o fim fica vazio até ser informado. Na tela inicial, concursos não inscritos, com inscrições já abertas e faltando de zero a sete dias para o encerramento, exibem aviso ordenado pelo prazo. O aviso inclui concursos do radar, some ao marcar a inscrição realizada e é reavaliado ao voltar à aba e a cada minuto. Os dias seguem o calendário local do navegador. A notificação funciona dentro do Aura; não solicita permissão para notificações do sistema.
 
 ## Estrutura
 

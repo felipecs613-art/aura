@@ -1,5 +1,5 @@
 export const MAX_BYTES = 750_000;
-export const emptyState = () => ({ version: 2, profile: { name: 'Estudante' }, xp: 0, coins: 0, tasks: [], rewards: [], redemptions: [], exams: [], currentExamId: null, currentCycle: 1, tceGoSeeded: false, seededMissionSets: [], createdAt: new Date().toISOString() });
+export const emptyState = () => ({ version: 3, profile: { name: 'Estudante' }, xp: 0, coins: 0, tasks: [], rewards: [], redemptions: [], exams: [], currentExamId: null, currentCycle: 1, tceGoSeeded: false, seededMissionSets: [], createdAt: new Date().toISOString() });
 
 function text(value, max, fallback = '') {
   if (value === undefined || value === null) return fallback;
@@ -73,7 +73,7 @@ function historyEntry(value) {
 // Uma única fronteira de validação para cache, backup e API. Nunca copia campos desconhecidos.
 export function validateState(input) {
   const source = record(input);
-  if (source.version !== undefined && ![1, 2].includes(source.version)) throw new Error('Versão de dados não suportada.');
+  if (source.version !== undefined && ![1, 2, 3].includes(source.version)) throw new Error('Versão de dados não suportada.');
   const result = emptyState();
   result.profile = { name: text(record(source.profile || {}).name, 100, 'Estudante') };
   result.xp = number(source.xp);
@@ -113,7 +113,13 @@ export function validateState(input) {
     if (!name) throw new Error('Nome do concurso obrigatório.');
     const fee = exam.fee ?? '';
     if (fee !== '' && (typeof fee !== 'number' || !Number.isFinite(fee) || fee < 0 || fee > 1_000_000)) throw new Error('Taxa de inscrição inválida.');
-    return { id: identity(exam.id, examIds), name, board: text(exam.board, 100), registrationDate: day(exam.registrationDate), fee, examDate: day(exam.examDate), registered: boolean(exam.registered ?? false), createdAt: date(exam.createdAt) };
+    const registrationStartDate = day(exam.registrationStartDate ?? exam.registrationDate);
+    const registrationEndDate = day(exam.registrationEndDate);
+    if (registrationStartDate && registrationEndDate && registrationEndDate < registrationStartDate) throw new Error('O último dia de inscrição deve ser igual ou posterior ao início.');
+    const noticeUrl = text(exam.noticeUrl, 2000).trim();
+    if (noticeUrl && !['http:', 'https:'].includes(new URL(noticeUrl).protocol)) throw new Error('Link do edital inválido.');
+    // A data antiga é preservada como início; não inventa um prazo final para inscrições existentes.
+    return { id: identity(exam.id, examIds), name, board: text(exam.board, 100), registrationDate: registrationStartDate, registrationStartDate, registrationEndDate, noticeUrl, fee, examDate: day(exam.examDate), registered: boolean(exam.registered ?? false), createdAt: date(exam.createdAt) };
   });
   result.currentExamId = source.currentExamId == null || source.currentExamId === '' ? null : text(source.currentExamId, 100);
   if (result.currentExamId && !examIds.has(result.currentExamId)) throw new Error('Concurso atual não encontrado.');
