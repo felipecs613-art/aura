@@ -21,7 +21,9 @@ test('downloads CSV completos e reimporta campos novos sem perder vínculos', as
   const missionDownload = await missionDownloadPromise;
   const content = await readFile(await missionDownload.path(), 'utf8');
   const rows = parseCsv(content), values = Object.fromEntries(rows[0].map((header, index) => [header, rows[1][index]]));
-  expect(values).toMatchObject({ Concurso: 'Concurso TI', Banca: 'FCC', 'Último dia de inscrição': '2026-10-30', 'Link do edital': 'https://example.com/edital.pdf', 'Acerto no 1º ciclo (%)': '0', 'Acerto no 2º ciclo (%)': '82,5', 'Taxa de inscrição': '120,5', 'Inscrição realizada': 'Sim' });
+  expect(values).toMatchObject({ 'ID do concurso': 'exam', 'Acerto no 1º ciclo (%)': '0', 'Acerto no 2º ciclo (%)': '82,5' });
+  expect(rows[0]).toHaveLength(16);
+  for (const removed of ['Concurso', 'Banca', 'Início das inscrições', 'Último dia de inscrição', 'Link do edital', 'Data da prova', 'Taxa de inscrição', 'Inscrição realizada', 'Concurso atual', 'Concurso criado em']) expect(rows[0]).not.toContain(removed);
   expect(JSON.parse(values['Histórico (JSON)'])[0].accuracy).toBe(0);
   const examDownloadPromise = page.waitForEvent('download');
   await page.locator('#exportExamsCsvButton').click();
@@ -30,6 +32,8 @@ test('downloads CSV completos e reimporta campos novos sem perder vínculos', as
   const examRows = parseCsv(await readFile(await examDownload.path(), 'utf8'));
   expect(examRows).toHaveLength(3);
   expect(examRows[2][0]).toBe('Sem missão');
+  expect(examRows[0]).toContain('Banca');
+  expect(examRows[0]).toContain('Link do edital');
   await page.locator('#csvFileInput').setInputFiles({ name: 'missoes.csv', mimeType: 'text/csv', buffer: Buffer.from(content) });
   await expect(page.locator('#toastStack')).toContainText('CSV importado');
   await expect(page.locator('#syncIndicator')).toHaveText('Sincronizado');

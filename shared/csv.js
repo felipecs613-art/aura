@@ -2,7 +2,7 @@ import { validateState } from './state.js';
 
 const IMPORTANCE = { low: 'Baixa', medium: 'Média', high: 'Alta' };
 const EXAM_HEADERS = ['Concurso', 'ID do concurso', 'Banca', 'Início das inscrições', 'Último dia de inscrição', 'Link do edital', 'Data da prova', 'Taxa de inscrição', 'Inscrição realizada', 'Concurso atual', 'Concurso criado em'];
-export const MISSION_HEADERS = ['Item do Edital', 'Link do Notebook', 'Disciplina', 'Importância / Relevância', 'Ciclo', 'Prazo', 'Concluída', 'ID da missão', ...EXAM_HEADERS, ...[1, 2, 3, 4].map(c => `Acerto no ${c}º ciclo (%)`), 'Criada em', 'Atualizada em', 'Histórico (JSON)'];
+export const MISSION_HEADERS = ['Item do Edital', 'Link do Notebook', 'Disciplina', 'Importância / Relevância', 'Ciclo', 'Prazo', 'Concluída', 'ID da missão', 'ID do concurso', ...[1, 2, 3, 4].map(c => `Acerto no ${c}º ciclo (%)`), 'Criada em', 'Atualizada em', 'Histórico (JSON)'];
 
 function encode(rows) {
   const quote = value => {
@@ -16,13 +16,7 @@ function examCells(exam, currentExamId) {
   return [exam.name, exam.id, exam.board, exam.registrationStartDate ?? exam.registrationDate, exam.registrationEndDate, exam.noticeUrl, exam.examDate, exam.fee, exam.registered ? 'Sim' : 'Não', exam.id === currentExamId ? 'Sim' : 'Não', exam.createdAt];
 }
 export function exportMissionsCsv(state) {
-  const exams = new Map(state.exams.map(exam => [exam.id, exam]));
-  return encode([MISSION_HEADERS, ...state.tasks.map(task => {
-    const competition = examCells(exams.get(task.examId), state.currentExamId);
-    // Preserva o vínculo mesmo quando o concurso foi excluído.
-    if (task.examId && !competition[1]) competition[1] = task.examId;
-    return [task.title, task.link, task.subject, IMPORTANCE[task.importance], `${task.cycle}º Ciclo`, task.deadline, task.done ? 'Sim' : 'Não', task.id, ...competition, ...[1, 2, 3, 4].map(c => task.accuracyByCycle?.[String(c)] ?? ''), task.createdAt, task.updatedAt, JSON.stringify(task.history || [])];
-  })]);
+  return encode([MISSION_HEADERS, ...state.tasks.map(task => [task.title, task.link, task.subject, IMPORTANCE[task.importance], `${task.cycle}º Ciclo`, task.deadline, task.done ? 'Sim' : 'Não', task.id, task.examId || '', ...[1, 2, 3, 4].map(c => task.accuracyByCycle?.[String(c)] ?? ''), task.createdAt, task.updatedAt, JSON.stringify(task.history || [])])]);
 }
 export function exportExamsCsv(state) {
   return encode([EXAM_HEADERS, ...state.exams.map(exam => examCells(exam, state.currentExamId))]);

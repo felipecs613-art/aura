@@ -12,12 +12,17 @@ test('CSV de missões inclui todos os campos novos e conserva valores ao reimpor
   const data = fixture(), csv = exportMissionsCsv(data), rows = parseCsv(csv);
   assert.ok(csv.startsWith('\uFEFF'));
   assert.equal(rows[0].length, rows[1].length);
-  for (const label of ['Concurso', 'Banca', 'Início das inscrições', 'Último dia de inscrição', 'Link do edital', 'Acerto no 1º ciclo (%)', 'Acerto no 4º ciclo (%)', 'Histórico (JSON)', 'Criada em', 'Atualizada em']) assert.ok(rows[0].includes(label));
+  for (const label of ['ID do concurso', 'Acerto no 1º ciclo (%)', 'Acerto no 4º ciclo (%)', 'Histórico (JSON)', 'Criada em', 'Atualizada em']) assert.ok(rows[0].includes(label));
+  for (const label of ['Concurso', 'Banca', 'Início das inscrições', 'Último dia de inscrição', 'Link do edital', 'Data da prova', 'Taxa de inscrição', 'Inscrição realizada', 'Concurso atual', 'Concurso criado em']) assert.ok(!rows[0].includes(label));
+  assert.equal(rows[0].length, 16);
   const result = importAuraCsv(csv, emptyState());
   assert.deepEqual(result.state.tasks, data.tasks);
-  assert.deepEqual(result.state.exams, [data.exams[0]]);
-  assert.equal(result.state.currentExamId, 'exam');
-  assert.equal(result.tasksAdded, 1); assert.equal(result.examsAdded, 1);
+  assert.deepEqual(result.state.exams, []);
+  assert.equal(result.tasksAdded, 1); assert.equal(result.examsAdded, 0);
+  const combined = importAuraCsv(exportExamsCsv(data), result.state);
+  assert.deepEqual(combined.state.tasks, data.tasks);
+  assert.deepEqual(combined.state.exams, data.exams);
+  assert.equal(combined.state.currentExamId, 'exam');
 });
 
 test('CSV de concursos inclui registros sem missão e todos os campos de inscrição', () => {
@@ -47,8 +52,10 @@ test('colisões de ID não sobrescrevem concursos ou missões existentes', () =>
   assert.equal(result.state.exams[0].board, 'Outra banca');
   assert.equal(result.state.tasks[0].id, 'mission');
   assert.notEqual(result.state.tasks[1].id, 'mission');
-  assert.equal(result.state.tasks[1].examId, result.state.exams[2].id);
-  assert.equal(result.state.exams[2].board, 'FCC');
+  assert.equal(result.state.tasks[1].examId, 'exam');
+  assert.equal(result.state.exams.length, 2);
+  const examsResult = importAuraCsv(exportExamsCsv(source), existing, { makeId: () => `new-${++counter}` });
+  assert.equal(examsResult.state.exams[2].board, 'FCC');
   assert.equal(result.state.currentExamId, existing.currentExamId);
 });
 
