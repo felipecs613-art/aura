@@ -398,10 +398,13 @@ import { cycleCompletionEstimate } from './shared/planning.js';
         const badge = $('#cycleCompletionEstimate');
         const tasks = state.tasks.filter(task => Number(task.cycle) === Number(state.currentCycle));
         badge.classList.toggle('hidden', cycleView !== 'current' || tasks.length === 0);
-        const estimate = cycleCompletionEstimate(tasks, state.currentCycle);
+        const estimate = cycleCompletionEstimate(state.tasks, state.currentCycle);
+        const daily = $('#missionsCompletedToday');
+        daily.textContent = `Realizadas hoje: ${estimate.completedToday}`;
+        daily.classList.toggle('hidden', cycleView !== 'current');
         const label = estimate.date ? `Previsão: ${estimate.date.toLocaleDateString('pt-BR')}` : 'Ciclo concluído';
         if (badge.textContent !== label) badge.textContent = label;
-        const explanation = estimate.days ? `${estimate.pending} missões pendentes ÷ 3 por dia = ${estimate.days} dia(s), contando hoje como o primeiro dia.` : 'Nenhuma missão pendente neste ciclo.';
+        const explanation = estimate.days ? `${estimate.completedToday} realizadas hoje; restam ${estimate.remainingToday} da meta de hoje. ${estimate.pending} missões pendentes, com meta de 3 por dia.` : 'Nenhuma missão pendente neste ciclo.';
         badge.title = explanation;
         badge.setAttribute('aria-label', `${label}. ${explanation}`);
       }

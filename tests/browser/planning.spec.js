@@ -20,7 +20,8 @@ test('previsão usa pendentes reais, não muda com busca e atualiza após conclu
   await page.locator('[data-toggle-task]').click();
   await page.locator('#completionAccuracy').fill('80');
   await page.locator('#confirmCompletionButton').click();
-  await expect(badge).toHaveText('Previsão: 25/10/2026');
+  await expect(badge).toHaveText('Previsão: 26/10/2026');
+  await expect(page.locator('#missionsCompletedToday')).toHaveText('Realizadas hoje: 1');
   await page.locator('#searchInput').fill('');
   await page.getByRole('button', { name: 'Próximo ciclo', exact: true }).click();
   await expect(badge).toBeHidden();

@@ -5,6 +5,21 @@ import { cycleCompletionEstimate } from '../shared/planning.js';
 const tasks = count => Array.from({ length: count }, () => ({ cycle: 2, done: false }));
 const day = date => [date.getFullYear(), date.getMonth() + 1, date.getDate()];
 
+test('desconta o trabalho de hoje mesmo após transferência para outro ciclo', () => {
+  const now = new Date(2026, 9, 25, 12);
+  for (const count of [1, 3, 5]) {
+    const completed = Array.from({ length: count }, () => ({ cycle: 3, history: [
+      { type: 'status', done: true, cycle: 2, at: new Date(2026, 9, 25, 9).toISOString() },
+      { type: 'status', done: true, cycle: 2, at: new Date(2026, 9, 25, 10).toISOString() },
+      { type: 'status', done: true, cycle: 1, at: new Date(2026, 9, 24, 10).toISOString() }
+    ] }));
+    const estimate = cycleCompletionEstimate([...tasks(3), ...completed], 2, now);
+    assert.equal(estimate.completedToday, count);
+    assert.equal(estimate.remainingToday, Math.max(0, 3 - count));
+    assert.deepEqual(day(estimate.date), [2026, 10, 26]);
+  }
+});
+
 test('12 pendentes levam quatro dias, incluindo hoje, sem contar outros ciclos ou concluídas', () => {
   const estimate = cycleCompletionEstimate([...tasks(12), { cycle: 2, done: true }, { cycle: 1, done: false }], 2, new Date(2026, 9, 25, 23, 59));
   assert.equal(estimate.pending, 12); assert.equal(estimate.days, 4);
@@ -15,5 +30,5 @@ test('arredonda dias para cima e trata viradas de mês e ano', () => {
   assert.deepEqual(day(cycleCompletionEstimate(tasks(3), 2, new Date(2026, 9, 31)).date), [2026, 10, 31]);
   assert.deepEqual(day(cycleCompletionEstimate(tasks(4), 2, new Date(2026, 9, 31)).date), [2026, 11, 1]);
   assert.deepEqual(day(cycleCompletionEstimate(tasks(7), 2, new Date(2026, 11, 31)).date), [2027, 1, 2]);
-  assert.deepEqual(cycleCompletionEstimate([], 2), { pending: 0, days: 0, date: null });
+  assert.deepEqual(cycleCompletionEstimate([], 2), { pending: 0, completedToday: 0, remainingToday: 3, days: 0, date: null });
 });
