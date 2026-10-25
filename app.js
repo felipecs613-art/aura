@@ -3,6 +3,7 @@ import { api, SyncClient } from './shared/client.js';
 import { startLogin, finishLogin, clearSession } from './shared/auth.js';
 import { registrationAlerts } from './shared/registration.js';
 import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.js';
+import { cycleCompletionEstimate } from './shared/planning.js';
 
     (() => {
       'use strict';
@@ -377,6 +378,7 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
       }
       function renderTasks() {
         setCycleView(cycleView);
+        renderCycleEstimate();
         const list = filteredTasks();
         const cycle = Number(state.currentCycle) + (cycleView === 'next' ? 1 : 0);
         $('#taskCycleHeading').textContent = cycleView === 'next' ? 'Missões do próximo ciclo' : 'Missões do ciclo atual';
@@ -391,6 +393,17 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
         } else {
           $('#taskGrid').innerHTML = list.map(taskCard).join('');
         }
+      }
+      function renderCycleEstimate() {
+        const badge = $('#cycleCompletionEstimate');
+        const tasks = state.tasks.filter(task => Number(task.cycle) === Number(state.currentCycle));
+        badge.classList.toggle('hidden', cycleView !== 'current' || tasks.length === 0);
+        const estimate = cycleCompletionEstimate(tasks, state.currentCycle);
+        const label = estimate.date ? `Previsão: ${estimate.date.toLocaleDateString('pt-BR')}` : 'Ciclo concluído';
+        if (badge.textContent !== label) badge.textContent = label;
+        const explanation = estimate.days ? `${estimate.pending} missões pendentes ÷ 3 por dia = ${estimate.days} dia(s), contando hoje como o primeiro dia.` : 'Nenhuma missão pendente neste ciclo.';
+        badge.title = explanation;
+        badge.setAttribute('aria-label', `${label}. ${explanation}`);
       }
       function renderShop() {
         $('#rewardCount').textContent = `${state.rewards.length} itens`;
@@ -917,8 +930,8 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
         if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); card.focus({ preventScroll: true }); }
       });
       // Reavalia os prazos se a página permanecer aberta durante a virada do dia.
-      setInterval(() => { if (activeUser) renderRegistrationAlerts(); }, 60_000);
-      document.addEventListener('visibilitychange', () => { if (!document.hidden && activeUser) renderRegistrationAlerts(); });
+      setInterval(() => { if (activeUser) { renderRegistrationAlerts(); renderCycleEstimate(); } }, 60_000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden && activeUser) { renderRegistrationAlerts(); renderCycleEstimate(); } });
       $$('.nav-tab').forEach(tab => tab.addEventListener('click', () => setView(tab.dataset.view)));
       $('#newExamButton')?.addEventListener('click', () => showExamForm());
       $('#examForm')?.addEventListener('submit', saveExam);
