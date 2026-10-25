@@ -36,6 +36,17 @@ test('campos 2.0 sobrevivem à validação, serialização e leitura pelo Worker
   assert.deepEqual(result.data.exams, data.exams);
 });
 
+test('renomeação aceita Gists com o nome antigo e o novo sem perder dados', async () => {
+  const data = state20();
+  const store = new AuraStore({ storage: {} });
+  for (const app of ['Aura Tracker', 'Aula Tracker']) {
+    const result = await store.decode({ id: 'gist', owner: { id: 10 }, public: false, files: {
+      'aura-data.json': { content: JSON.stringify({ app, data }), truncated: false, size: 4000 }
+    } }, 10);
+    assert.deepEqual(result.data, validateState(data));
+  }
+});
+
 test('backup HTML 2.0 de versão 1 conserva concursos e histórico na migração', () => {
   const data = state20(); data.version = 1;
   const migrated = validateState(data);

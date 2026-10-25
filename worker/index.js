@@ -2,7 +2,7 @@ import { validateState, MAX_BYTES } from '../shared/state.js';
 import { SaveQueue } from '../shared/sync.js';
 
 const FILE = 'aura-data.json';
-const APP = 'Aura Tracker';
+const APP = 'Aula Tracker';
 const SESSION_SECONDS = 60 * 60 * 24 * 7;
 class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -49,7 +49,7 @@ async function github(token, path, options = {}) {
   try {
     response = await fetch(`https://api.github.com${path}`, {
       ...options,
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2026-03-10', 'User-Agent': 'Aura-Tracker', 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2026-03-10', 'User-Agent': 'Aula-Tracker', 'Content-Type': 'application/json' },
       signal: AbortSignal.timeout(20_000),
     });
   } catch { throw new HttpError(503, 'GitHub indisponível. Tente novamente.'); }
@@ -259,8 +259,8 @@ export class AuraStore {
     if (!file || file.truncated || file.size > MAX_BYTES + 1000 || typeof file.content !== 'string') throw new HttpError(422, 'Arquivo do Gist ausente, truncado ou muito grande.');
     try {
       const parsed = JSON.parse(file.content);
-      if (parsed.app !== undefined && parsed.app !== APP) throw new Error('Aplicação incompatível.');
-      const data = validateState(parsed.app === APP ? parsed.data : parsed);
+      if (parsed.app !== undefined && ![APP, 'Aura Tracker'].includes(parsed.app)) throw new Error('Aplicação incompatível.');
+      const data = validateState(parsed.app !== undefined ? parsed.data : parsed);
       return { data, revision: await hash(file.content), gist_id: gist.id };
     } catch { throw new HttpError(422, 'Os dados do Gist são inválidos. Nenhuma alteração foi feita.'); }
   }
@@ -280,7 +280,7 @@ export class AuraStore {
     const payload = { files: { [FILE]: { content } } };
     const result = gist
       ? await github(body.token, `/gists/${gist.id}`, { method: 'PATCH', body: JSON.stringify(payload) })
-      : await github(body.token, '/gists', { method: 'POST', body: JSON.stringify({ ...payload, description: 'Aura Tracker — progresso de estudos', public: false }) });
+      : await github(body.token, '/gists', { method: 'POST', body: JSON.stringify({ ...payload, description: 'Aula Tracker — progresso de estudos', public: false }) });
     await this.ctx.storage.put('gistId', result.id);
     return this.decode(result, body.userId);
   }

@@ -763,16 +763,16 @@ import { cycleCompletionEstimate } from './shared/planning.js';
         const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
       function exportCsv() {
-        downloadBlob(exportMissionsCsv(state), `aura-tracker-missoes-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
+        downloadBlob(exportMissionsCsv(state), `aula-tracker-missoes-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
         toast('CSV exportado', 'O arquivo foi preparado para download.');
       }
       function exportExams() {
-        downloadBlob(exportExamsCsv(state), `aura-tracker-concursos-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
+        downloadBlob(exportExamsCsv(state), `aula-tracker-concursos-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8;');
         toast('Concursos exportados', 'Inclui todos os concursos, mesmo sem missões vinculadas.');
       }
       function backupData() {
-        const payload = { ...state, exportedAt: new Date().toISOString(), app: 'Aura Tracker' };
-        downloadBlob(JSON.stringify(payload, null, 2), `aura-tracker-backup-${new Date().toISOString().slice(0,10)}.json`, 'application/json;charset=utf-8;');
+        const payload = { ...state, exportedAt: new Date().toISOString(), app: 'Aula Tracker' };
+        downloadBlob(JSON.stringify(payload, null, 2), `aula-tracker-backup-${new Date().toISOString().slice(0,10)}.json`, 'application/json;charset=utf-8;');
         toast('Backup criado', 'Guarde o arquivo JSON em um local seguro.');
       }
       function restoreBackup(file) {
@@ -784,7 +784,7 @@ import { cycleCompletionEstimate } from './shared/planning.js';
             if (!confirm(`Restaurar este backup?\n\nMissões: ${parsed.tasks.length}\nRecompensas: ${parsed.rewards.length}\n\nOs dados atuais deste navegador serão substituídos.`)) return;
             state = validateState(parsed);
             if (!saveState()) { renderAll(); return; } renderAll(); toast('Backup restaurado', 'Seus dados foram carregados neste navegador.');
-          } catch (error) { console.error(error); toast('Backup inválido', 'Selecione um arquivo JSON de backup do Aura Tracker.', 'neutral'); }
+          } catch (error) { console.error(error); toast('Backup inválido', 'Selecione um arquivo JSON de backup do Aula Tracker.', 'neutral'); }
           $('#backupFileInput').value = '';
         };
         reader.onerror = () => { toast('Falha ao ler backup', 'Tente selecionar o arquivo novamente.', 'neutral'); $('#backupFileInput').value = ''; };

@@ -1,4 +1,6 @@
-# Aura Tracker
+# Aula Tracker
+
+O nome anterior era Aura Tracker. O favicon SVG acompanha a marca atual. Os identificadores internos de cache, sessão, Gist e hospedagem continuam iguais para preservar login e dados existentes; Gists com ambos os nomes são aceitos.
 
 Aplicação de estudos com missões, quatro ciclos, concursos, percentuais de acerto, histórico, moedas, recompensas e backups. O login usa GitHub OAuth com escopo `gist`; os dados são sincronizados em um Gist secreto por conta. Saldos de XP anteriores são preservados; a interface 2.0 usa moedas e progresso por ciclo.
 
@@ -10,13 +12,13 @@ Aplicação de estudos com missões, quatro ciclos, concursos, percentuais de ac
 
 O GitHub Pages serve os arquivos estáticos de `main` na raiz, com `.nojekyll`. `shared/auth.js` aponta para o Worker somente quando a aplicação está na origem do Pages. O Worker mantém os segredos existentes `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` e a restrição opcional `ALLOWED_USER`.
 
-No Pages, o login usa PKCE S256, `state` de uso único e uma sessão opaca do Aura em `sessionStorage`. O token do GitHub nunca é enviado ao frontend. As chamadas usam `Authorization` com a sessão do Aura, sem cookies de terceiros, e CORS permite apenas a origem configurada em `PAGES_URL`. Ao fechar a aba, poderá ser necessário entrar novamente. Os dados e alterações pendentes permanecem no cache da conta e no Gist.
+No Pages, o login usa PKCE S256, `state` de uso único e uma sessão opaca do Aula Tracker em `sessionStorage`. O token do GitHub nunca é enviado ao frontend. As chamadas usam `Authorization` com a sessão do Aula Tracker, sem cookies de terceiros, e CORS permite apenas a origem configurada em `PAGES_URL`. Ao fechar a aba, poderá ser necessário entrar novamente. Os dados e alterações pendentes permanecem no cache da conta e no Gist.
 
 Para atualizar produção, execute os testes, publique o Worker com `npm run build` e `npx wrangler deploy --keep-vars`, depois publique os arquivos do projeto em `main`. Os assets do Worker incluem somente a lista explícita de `scripts/build.mjs`; nunca publique `.dev.vars` ou credenciais. Se alterar o domínio do Pages, atualize `shared/auth.js`, `wrangler.jsonc` e o callback na OAuth App.
 
 O estado usa versão 3. Dados das versões 1 e 2 são migrados preservando tarefas, saldos, recompensas e resgates. Concursos, concurso atual, ciclo atual, vínculos, acertos, histórico e marcador de concurso padrão participam de todos os salvamentos e backups JSON. Implante frontend e backend juntos para evitar que um validador antigo descarte esses campos.
 
-Cada concurso aceita início e último dia de inscrição e link do edital (HTTP/HTTPS). A data única das versões anteriores é preservada como início; o fim fica vazio até ser informado. Na tela inicial, concursos não inscritos, com inscrições já abertas e faltando de zero a sete dias para o encerramento, exibem aviso ordenado pelo prazo. O aviso inclui concursos do radar, some ao marcar a inscrição realizada e é reavaliado ao voltar à aba e a cada minuto. Os dias seguem o calendário local do navegador. A notificação funciona dentro do Aura; não solicita permissão para notificações do sistema.
+Cada concurso aceita início e último dia de inscrição e link do edital (HTTP/HTTPS). A data única das versões anteriores é preservada como início; o fim fica vazio até ser informado. Na tela inicial, concursos não inscritos, com inscrições já abertas e faltando de zero a sete dias para o encerramento, exibem aviso ordenado pelo prazo. O aviso inclui concursos do radar, some ao marcar a inscrição realizada e é reavaliado ao voltar à aba e a cada minuto. Os dias seguem o calendário local do navegador. A notificação funciona dentro do Aula Tracker; não solicita permissão para notificações do sistema.
 
 ## Estrutura
 
@@ -83,17 +85,17 @@ O nome configurado é `aura-auth`, reutilizando os segredos do Worker existente.
 - `GET /api/auth/login`: cria transação OAuth de 10 minutos, `state` aleatório e PKCE S256, com vínculo a cookie do navegador.
 - `GET /api/auth/callback`: consome a transação uma vez, troca o código no servidor e consulta `/user` no GitHub.
 - `POST /api/auth/start`: inicia OAuth com PKCE na origem autorizada do Pages.
-- `POST /api/auth/exchange`: valida `state` e PKCE e devolve somente a sessão opaca do Aura.
+- `POST /api/auth/exchange`: valida `state` e PKCE e devolve somente a sessão opaca do Aula Tracker.
 - `GET /api/session`: devolve apenas identidade pública do usuário.
 - `POST /api/auth/logout`: invalida a sessão no servidor e remove o cookie.
 - `GET /api/data`: carrega dados e revisão do Gist.
 - `POST /api/data`: recebe `{ data, revision }`; rejeita revisões antigas com HTTP 409.
 
-Na modalidade de mesma origem, o cookie de sessão é `HttpOnly`, `SameSite=Lax` e `Secure` em HTTPS. No Pages, a sessão opaca fica em `sessionStorage`, vinculada à origem autorizada. Em ambos os casos o token GitHub fica no armazenamento do Durable Object da sessão, com prazo máximo de sete dias ou o prazo menor informado pelo GitHub. Sessões e transações OAuth são removidas por alarme. Tokens expirados ou revogados exigem novo login; não é solicitado `offline_access` nem implementada renovação automática. Sair encerra a sessão do Aura; não revoga a autorização da OAuth App no GitHub.
+Na modalidade de mesma origem, o cookie de sessão é `HttpOnly`, `SameSite=Lax` e `Secure` em HTTPS. No Pages, a sessão opaca fica em `sessionStorage`, vinculada à origem autorizada. Em ambos os casos o token GitHub fica no armazenamento do Durable Object da sessão, com prazo máximo de sete dias ou o prazo menor informado pelo GitHub. Sessões e transações OAuth são removidas por alarme. Tokens expirados ou revogados exigem novo login; não é solicitado `offline_access` nem implementada renovação automática. Sair encerra a sessão do Aula Tracker; não revoga a autorização da OAuth App no GitHub.
 
-Cada conta tem um Durable Object de dados, que serializa gravações e guarda somente o vínculo com o Gist. A descoberta percorre páginas da API e procura `aura-data.json` pertencente ao usuário. Mais de um candidato gera conflito; um arquivo inválido, público, truncado ou removido não é substituído silenciosamente. Gists anteriores com JSON de estado válido são lidos; na próxima gravação recebem o envelope `{ app: "Aura Tracker", data }`.
+Cada conta tem um Durable Object de dados, que serializa gravações e guarda somente o vínculo com o Gist. A descoberta percorre páginas da API e procura `aura-data.json` pertencente ao usuário. Mais de um candidato gera conflito; um arquivo inválido, público, truncado ou removido não é substituído silenciosamente. Gists anteriores com JSON de estado válido são lidos; na próxima gravação recebem o envelope `{ app: "Aula Tracker", data }`.
 
-São aceitos até 750.000 bytes de estado, 5.000 missões, 1.000 recompensas e 5.000 resgates. Conteúdo truncado é recusado em vez de carregar parcialmente. O escopo `gist` concede acesso amplo aos Gists da conta; o código da aplicação restringe suas operações ao arquivo identificado do Aura.
+São aceitos até 750.000 bytes de estado, 5.000 missões, 1.000 recompensas e 5.000 resgates. Conteúdo truncado é recusado em vez de carregar parcialmente. O escopo `gist` concede acesso amplo aos Gists da conta; o código da aplicação restringe suas operações ao arquivo identificado do Aula Tracker.
 
 **Gists secretos não são privados:** qualquer pessoa com a URL pode ler o conteúdo e seu histórico. Esta implementação não criptografa o JSON; não armazene segredos ou informações sensíveis nele. Para confidencialidade, use armazenamento com controle de acesso ou implemente criptografia com uma estratégia de recuperação de chaves.
 
@@ -105,11 +107,11 @@ As gravações são serializadas, têm debounce de 1,2 segundo e usam revisão c
 
 O aviso de conflito permite baixar a cópia aberta, carregar a nuvem ou enviar a cópia local mediante confirmação. Não há mesclagem automática. Fechar a página pode deixar alterações pendentes, preservadas no cache para o próximo login dessa conta. Logout cancela o agendamento e aguarda a requisição em andamento; não promete que pendências já chegaram à nuvem.
 
-O Worker detecta alterações externas ao reler o Gist antes de gravar. A serialização garante conflitos entre clientes deste Worker; a API de Gists não fornece aqui uma transação atômica de comparação e escrita contra edições simultâneas feitas diretamente no GitHub ou por outro sistema. Evite editar o mesmo arquivo por esses caminhos enquanto usa o Aura.
+O Worker detecta alterações externas ao reler o Gist antes de gravar. A serialização garante conflitos entre clientes deste Worker; a API de Gists não fornece aqui uma transação atômica de comparação e escrita contra edições simultâneas feitas diretamente no GitHub ou por outro sistema. Evite editar o mesmo arquivo por esses caminhos enquanto usa o Aula Tracker.
 
 ## Migrar dados antigos
 
-Antes de trocar a hospedagem, baixe um backup JSON no Aura antigo. O armazenamento do navegador é específico da origem e não acompanha a mudança de GitHub Pages para Worker.
+Antes de trocar a hospedagem, baixe um backup JSON no Aula Tracker antigo. O armazenamento do navegador é específico da origem e não acompanha a mudança de GitHub Pages para Worker.
 
 Após entrar na conta correta, use **Configurações → Restaurar backup JSON**. Se o cache antigo estiver na mesma origem, **Importar dados anteriores deste navegador** permite importação explícita. O cache antigo é preservado e nunca associado automaticamente a uma conta. Credenciais antigas `gh_token`, `gh_user`, `gist_id` e `oauth_state` são removidas do navegador.
 
