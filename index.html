@@ -53,13 +53,13 @@
         </article>
         <article class="stat-card" style="--stat-color:var(--green);--stat-bg:rgba(46,160,112,.1);--glow:rgba(46,160,112,.06)">
           <div class="stat-head"><span id="cycleProgressHeading">PROGRESSO DO 1º CICLO</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 1-9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v9h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></div>
-          <div class="stat-value" id="cycleProgressValue">0%</div><div class="stat-foot" id="cycleProgressFoot">0 de 0 missões concluídas</div>
+          <div class="stat-value" id="cycleProgressValue">0%</div>
         </article>
       </section>
 
       <section class="tasks-section">
         <div class="section-heading section-heading-spaced">
-          <div><h2 class="section-title">Missões do ciclo atual <span class="count-badge" id="visibleTaskCount">0</span></h2><p class="section-subtitle">Exibindo apenas as missões do ciclo selecionado.</p></div>
+          <div><h2 class="section-title"><span id="taskCycleHeading">Missões do ciclo atual</span> <span class="count-badge" id="visibleTaskCount">0</span></h2><p class="section-subtitle" id="taskCycleDescription">Exibindo apenas as missões do ciclo selecionado.</p></div>
           <div class="heading-actions">
             <label for="currentCycleSelect" style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700">Ciclo atual <select class="select-control" id="currentCycleSelect" aria-label="Escolher ciclo atual"><option value="1">1º ciclo</option><option value="2">2º ciclo</option><option value="3">3º ciclo</option><option value="4">4º ciclo</option></select></label>
             <div class="search-box"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input class="search-input" id="searchInput" type="search" placeholder="Buscar missão ou disciplina..." aria-label="Buscar missões"></div>
@@ -121,9 +121,9 @@
       <div class="dock-inner">
         <div class="dock-label task-dock-only">Visualização das missões</div>
         <div class="dock-controls">
-          <div class="segmented task-dock-only" role="group" aria-label="Filtrar por status"><button class="segment active" data-status="pending">Pendentes</button><button class="segment" data-status="completed">Concluídas</button><button class="segment" data-status="all">Todas</button></div>
+          <div class="segmented task-dock-only" role="group" aria-label="Visualizar ciclo"><button class="segment active" type="button" data-cycle-view="current" aria-pressed="true">Ciclo atual</button><button class="segment" type="button" data-cycle-view="next" aria-pressed="false" id="nextCycleButton">Próximo ciclo</button></div>
           <div class="dock-divider task-dock-only"></div>
-          <select class="dock-sort task-dock-only" id="sortSelect" aria-label="Ordenar missões"><option value="title">Título A–Z</option><option value="newest">Mais novas</option><option value="oldest">Mais antigas</option><option value="deadline">Prazo mais próximo</option><option value="importance">Maior relevância</option></select>
+          <select class="dock-sort task-dock-only" id="sortSelect" aria-label="Ordenar missões"><option value="title">Título A–Z</option><option value="title-desc">Título Z–A</option><option value="newest">Mais novas</option><option value="oldest">Mais antigas</option><option value="deadline">Prazo mais próximo</option><option value="importance">Maior relevância</option></select>
           <div class="dock-quick-actions">
             <button class="add-dock-btn task-dock-only" id="dockAddButton"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Nova missão</button>
         <div class="wallet-chip" title="Saldo de moedas" aria-label="Saldo de moedas"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M15 8.5c-.7-.6-1.7-1-3-1-1.8 0-3 .9-3 2.1 0 3 6 1.2 6 4.4 0 1.3-1.3 2.5-3.3 2.5-1.1 0-2.2-.4-3.1-1.1M12 5.5v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="coinBalance">0</span><span class="wallet-label">moedas</span></div>

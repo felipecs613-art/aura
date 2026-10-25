@@ -147,7 +147,8 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
         return data;
       }
       let state = defaultState();
-      let statusFilter = 'pending';
+      let cycleView = 'current';
+      let currentCycleSort = 'title';
       let currentView = 'tasks';
       let editingExamId = null;
       let completionTaskId = null;
@@ -292,7 +293,7 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
         $('#taskTitle').value = task?.title || '';
         $('#taskSubject').value = task?.subject || '';
         populateTaskExams(task?.examId || '');
-        $('#taskCycle').value = String(task ? (Number(task.cycle) || 1) : (Number(state.currentCycle) || 1));
+        $('#taskCycle').value = String(task ? (Number(task.cycle) || 1) : Math.min(4, (Number(state.currentCycle) || 1) + (cycleView === 'next' ? 1 : 0)));
         $('#taskImportance').value = task?.importance || 'medium';
         $('#taskDeadline').value = task?.deadline || '';
         $('#taskAccuracy').value = task ? (taskAccuracy(task, Number(task.cycle)) ?? '') : '';
@@ -327,7 +328,6 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
         if ($('#progressFill')) $('#progressFill').style.width = `${pct}%`;
         if ($('#cycleProgressHeading')) $('#cycleProgressHeading').textContent = `PROGRESSO DO ${cycle}º CICLO`;
         if ($('#cycleProgressValue')) $('#cycleProgressValue').textContent = `${pct}%`;
-        if ($('#cycleProgressFoot')) $('#cycleProgressFoot').textContent = `${done} de ${total} missões concluídas`;
         if ($('#progressRing')) $('#progressRing').style.setProperty('--p', `${pct}%`);
         if ($('#pendingPill')) $('#pendingPill').textContent = `${state.tasks.filter(t => Number(t.cycle) === cycle && !t.done).length} pendentes`;
         const activeCycles = new Set(state.tasks.map(t => String(t.cycle))).size;
@@ -361,10 +361,12 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
       }
       function filteredTasks() {
         const q = $('#searchInput').value.trim().toLocaleLowerCase('pt-BR');
-        let list = state.tasks.filter(t => Number(t.cycle) === Number(state.currentCycle)).filter(t => statusFilter === 'all' || (statusFilter === 'pending' ? !t.done : t.done));
+        const cycle = Number(state.currentCycle) + (cycleView === 'next' ? 1 : 0);
+        let list = state.tasks.filter(t => Number(t.cycle) === cycle);
         if (q) list = list.filter(t => `${t.title} ${t.subject} ${taskExamName(t)} ${CYCLE_NAMES[t.cycle]}`.toLocaleLowerCase('pt-BR').includes(q));
-        const sort = $('#sortSelect').value;
+        const sort = cycleView === 'next' ? 'title-desc' : $('#sortSelect').value;
         list.sort((a, b) => {
+          if (sort === 'title-desc') return String(b.title || '').localeCompare(String(a.title || ''), 'pt-BR', { sensitivity: 'base' });
           if (sort === 'newest') return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
           if (sort === 'oldest') return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
           if (sort === 'deadline') return (a.deadline || '9999-12-31').localeCompare(b.deadline || '9999-12-31') || a.title.localeCompare(b.title, 'pt-BR');
@@ -374,14 +376,18 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
         return list;
       }
       function renderTasks() {
+        setCycleView(cycleView);
         const list = filteredTasks();
+        const cycle = Number(state.currentCycle) + (cycleView === 'next' ? 1 : 0);
+        $('#taskCycleHeading').textContent = cycleView === 'next' ? 'Missões do próximo ciclo' : 'Missões do ciclo atual';
+        $('#taskCycleDescription').textContent = `Exibindo as missões do ${cycle}º ciclo.${cycleView === 'next' ? ' Ordem: Z–A.' : ''}`;
         $('#visibleTaskCount').textContent = list.length;
         if (!list.length) {
           const hasTasks = state.tasks.length > 0;
           const title = hasTasks ? 'Nenhuma missão encontrada' : 'Seu próximo nível começa aqui';
-          const copy = hasTasks ? 'Não há missões com esses filtros no ciclo atual. Selecione outro ciclo acima ou limpe a busca.' : 'Adicione seu primeiro item do edital ou importe uma planilha CSV pelas configurações para montar seu plano de estudos.';
+          const copy = hasTasks ? `Não há missões com essa busca no ${cycle}º ciclo. Selecione outro ciclo ou limpe a busca.` : 'Adicione seu primeiro item do edital ou importe uma planilha CSV pelas configurações para montar seu plano de estudos.';
           $('#taskGrid').innerHTML = `<div class="empty-state"><div class="empty-icon">${iconSvg(hasTasks ? 'book' : 'plus')}</div><h3>${title}</h3><p>${copy}</p><button class="btn btn-primary" type="button" id="emptyAddButton">${hasTasks ? 'Limpar filtros' : 'Criar primeira missão'}</button></div>`;
-          $('#emptyAddButton')?.addEventListener('click', () => { if (hasTasks) { $('#searchInput').value = ''; setStatusFilter('all'); renderTasks(); } else showTaskForm(); });
+          $('#emptyAddButton')?.addEventListener('click', () => { if (hasTasks) { $('#searchInput').value = ''; renderTasks(); } else showTaskForm(); });
         } else {
           $('#taskGrid').innerHTML = list.map(taskCard).join('');
         }
@@ -425,9 +431,18 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
         if (!saveState()) { renderAll(); return; }
         if (newTasks.length) toast(newTasks.length + ' missão(ões) adicionada(s)', 'TCE-GO: títulos, links, disciplinas e relevância FCC importados para o 1º Ciclo.');
       }
-      function setStatusFilter(filter) {
-        statusFilter = filter;
-        $$('[data-status]').forEach(btn => btn.classList.toggle('active', btn.dataset.status === filter));
+      function setCycleView(view) {
+        const nextAvailable = Number(state.currentCycle) < 4;
+        cycleView = view === 'next' && nextAvailable ? 'next' : 'current';
+        $('#nextCycleButton').disabled = !nextAvailable;
+        $('#nextCycleButton').title = nextAvailable ? `Visualizar o ${Number(state.currentCycle) + 1}º ciclo` : 'O 4º ciclo é o último ciclo';
+        $$('[data-cycle-view]').forEach(button => {
+          const active = button.dataset.cycleView === cycleView;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        $('#sortSelect').disabled = cycleView === 'next';
+        $('#sortSelect').value = cycleView === 'next' ? 'title-desc' : currentCycleSort;
       }
       function setView(view) {
         currentView = view;
@@ -913,10 +928,10 @@ import { exportMissionsCsv, exportExamsCsv, importAuraCsv } from './shared/csv.j
       $('#settingsButton')?.addEventListener('click', () => openModal('cycleModal'));
       $('#dockAddButton')?.addEventListener('click', () => showTaskForm());
       $('#taskForm')?.addEventListener('submit', addOrUpdateTask);
-      $('#currentCycleSelect')?.addEventListener('change', event => { state.currentCycle = Number(event.target.value) || 1; if (!saveState()) { renderAll(); return; } renderProgress(); renderTasks(); });
+      $('#currentCycleSelect')?.addEventListener('change', event => { state.currentCycle = Number(event.target.value) || 1; setCycleView('current'); if (!saveState()) { renderAll(); return; } renderProgress(); renderTasks(); });
       $('#searchInput')?.addEventListener('input', renderTasks);
-      $('#sortSelect')?.addEventListener('change', renderTasks);
-      $$('[data-status]').forEach(button => button.addEventListener('click', () => { setStatusFilter(button.dataset.status); renderTasks(); }));
+      $('#sortSelect')?.addEventListener('change', event => { currentCycleSort = event.target.value; renderTasks(); });
+      $$('[data-cycle-view]').forEach(button => button.addEventListener('click', () => { setCycleView(button.dataset.cycleView); renderTasks(); }));
       $('#importButton')?.addEventListener('click', () => $('#csvFileInput').click());
       $('#csvFileInput')?.addEventListener('change', event => { const file = event.target.files?.[0]; if (file) importCsvFile(file); });
       $('#exportCsvButton')?.addEventListener('click', exportCsv);

@@ -7,7 +7,7 @@ test('Pages completa OAuth com PKCE e usa sessão Aura nas leituras e gravaçõe
   let challenge, saved = null, revision = null, reads = 0, writes = 0, exchanged = false;
   await page.route(`${base}**`, async route => {
     const url = new URL(route.request().url());
-    const response = await page.request.get(`http://127.0.0.1:8787/${url.pathname.slice('/aura/'.length)}${url.search}`);
+    const response = await page.request.get(`http://127.0.0.1:8793/${url.pathname.slice('/aura/'.length)}${url.search}`);
     // GitHub Pages não aplica o CSP de mesma origem do servidor Worker local.
     const headers = { ...response.headers() };
     delete headers['content-security-policy'];

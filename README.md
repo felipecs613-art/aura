@@ -20,6 +20,8 @@ Cada concurso aceita início e último dia de inscrição e link do edital (HTTP
 
 ## Estrutura
 
+O rodapé alterna a visualização entre o ciclo atual e o próximo, sem transferir missões nem alterar o ciclo atual salvo. O próximo ciclo usa ordem de título Z–A; ao voltar, a ordenação anterior do ciclo atual é restaurada. No 4º ciclo, o botão de próximo ciclo fica desabilitado. O cartão de progresso mostra apenas o percentual, sem repetir a contagem de missões concluídas.
+
 | Caminho | Responsabilidade |
 | --- | --- |
 | `index.html`, `styles.css`, `app.js` | Interface e regras de estudos |
