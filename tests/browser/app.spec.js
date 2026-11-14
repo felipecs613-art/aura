@@ -98,7 +98,7 @@ test('CSV preserva ciclo, prazo e conclusão sem alterar XP e moedas', async ({ 
 
 test('queda de rede preserva alterações no cache após recarregar', async ({ page }) => {
   const data = fresh(); data.seededMissionSets = ['TCE_GO_Analise_FCC_Espacado_v1'];
-  data.tasks = [{ id: 'offline', title: 'Estudar offline', subject: 'Teste', link: '', deadline: '', cycle: 1, importance: 'low', done: false }];
+  data.tasks = [{ id: 'offline', examId: 'concurso-tce-go-analista-ti-2027', title: 'Estudar offline', subject: 'Teste', link: '', deadline: '', cycle: 1, importance: 'low', done: false }];
   await mockAccount(page, { initial: data });
   await page.goto('/');
   await expect(page.locator('#profileName')).toHaveText('Alice');
@@ -128,10 +128,11 @@ test('cadastro de concurso e vínculo de missão persistem após recarregar', as
   await page.locator('#saveExamButton').click();
   await expect(page.locator('#examModal')).toBeHidden();
   await expect(page.locator('#radarExams')).toContainText('Concurso de teste');
+  await page.locator('#radarExams [data-exam-action="promote"]').click();
   await page.locator('[data-view="tasks"]').click();
   await page.locator('#dockAddButton').click();
   await page.locator('#taskTitle').fill('Estudar redes');
-  await page.locator('#taskExam').selectOption({ label: 'Concurso de teste' });
+  await page.locator('#taskExam').selectOption({ label: '★ Concurso de teste' });
   await page.locator('#taskDeadline').fill('2026-12-01');
   await page.locator('#saveTaskButton').click();
   await expect(page.locator('#taskModal')).toBeHidden();
@@ -153,7 +154,7 @@ test('cadastro de concurso e vínculo de missão persistem após recarregar', as
 
 test('transferência em lote preserva acertos e moedas e o quarto ciclo não avança', async ({ page }) => {
   const data = fresh(); data.seededMissionSets = ['TCE_GO_Analise_FCC_Espacado_v1']; data.coins = 55; data.xp = 200;
-  data.tasks = [{ id: 'move', title: 'Transferir missão', subject: 'TI', link: '', deadline: '2026-12-01', cycle: 2, importance: 'high', done: false, accuracyByCycle: { '1': 60 }, history: [] }];
+  data.tasks = [{ id: 'move', examId: 'concurso-tce-go-analista-ti-2027', title: 'Transferir missão', subject: 'TI', link: '', deadline: '2026-12-01', cycle: 2, importance: 'high', done: false, accuracyByCycle: { '1': 60 }, history: [] }];
   const cloud = await mockAccount(page, { initial: data });
   await page.goto('/');
   await expect(page.locator('#profileName')).toHaveText('Alice');

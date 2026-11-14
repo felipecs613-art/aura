@@ -1,5 +1,7 @@
 # Aula Tracker
 
+A aba Missões exibe somente as missões vinculadas ao concurso atual definido na aba Concursos, mantendo os filtros de ciclo e busca. Progresso, contadores e previsão seguem esse concurso. Ao trocar o concurso atual, a busca é limpa e a lista é atualizada; as missões dos demais concursos permanecem salvas. Novas missões recebem o concurso atual como seleção inicial. Sem concurso atual, são exibidas apenas as missões sem vínculo. Exportações e backups continuam incluindo todos os concursos e missões.
+
 O nome anterior era Aura Tracker. O favicon SVG acompanha a marca atual. Os identificadores internos de cache, sessão, Gist e hospedagem continuam iguais para preservar login e dados existentes; Gists com ambos os nomes são aceitos.
 
 Aplicação de estudos com missões, quatro ciclos, concursos, percentuais de acerto, histórico, moedas, recompensas e backups. O login usa GitHub OAuth com escopo `gist`; os dados são sincronizados em um Gist secreto por conta. Saldos de XP anteriores são preservados; a interface 2.0 usa moedas e progresso por ciclo.

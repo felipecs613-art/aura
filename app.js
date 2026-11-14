@@ -287,13 +287,16 @@ import { cycleCompletionEstimate } from './shared/planning.js';
         const exam = (state.exams || []).find(e => String(e.id) === String(task.examId));
         return exam ? String(exam.name || 'Concurso sem nome') : 'Concurso excluído';
       }
+      function currentExamTasks() {
+        return state.tasks.filter(task => (task.examId || '') === (state.currentExamId || ''));
+      }
       function showTaskForm(task = null) {
         editTaskId = task?.id || null;
         $('#taskModalTitle').textContent = task ? 'Editar missão' : 'Nova missão';
         $('#saveTaskButton').textContent = task ? 'Salvar alterações' : 'Salvar missão';
         $('#taskTitle').value = task?.title || '';
         $('#taskSubject').value = task?.subject || '';
-        populateTaskExams(task?.examId || '');
+        populateTaskExams(task ? task.examId || '' : state.currentExamId || '');
         $('#taskCycle').value = String(task ? (Number(task.cycle) || 1) : Math.min(4, (Number(state.currentCycle) || 1) + (cycleView === 'next' ? 1 : 0)));
         $('#taskImportance').value = task?.importance || 'medium';
         $('#taskDeadline').value = task?.deadline || '';
@@ -320,7 +323,8 @@ import { cycleCompletionEstimate } from './shared/planning.js';
       }
       function renderProgress() {
         const cycle = Number(state.currentCycle) || 1;
-        const tasks = state.tasks.filter(t => participatedInCycle(t, cycle));
+        const scopedTasks = currentExamTasks();
+        const tasks = scopedTasks.filter(t => participatedInCycle(t, cycle));
         const done = tasks.filter(t => completedInCycle(t, cycle)).length;
         const total = tasks.length;
         const pct = total ? Math.round(done / total * 100) : 0;
@@ -330,18 +334,18 @@ import { cycleCompletionEstimate } from './shared/planning.js';
         if ($('#cycleProgressHeading')) $('#cycleProgressHeading').textContent = `PROGRESSO DO ${cycle}º CICLO`;
         if ($('#cycleProgressValue')) $('#cycleProgressValue').textContent = `${pct}%`;
         if ($('#progressRing')) $('#progressRing').style.setProperty('--p', `${pct}%`);
-        if ($('#pendingPill')) $('#pendingPill').textContent = `${state.tasks.filter(t => Number(t.cycle) === cycle && !t.done).length} pendentes`;
-        const activeCycles = new Set(state.tasks.map(t => String(t.cycle))).size;
+        if ($('#pendingPill')) $('#pendingPill').textContent = `${scopedTasks.filter(t => Number(t.cycle) === cycle && !t.done).length} pendentes`;
+        const activeCycles = new Set(scopedTasks.map(t => String(t.cycle))).size;
         if ($('#cycleCountPill')) $('#cycleCountPill').textContent = `${activeCycles} ciclo(s) com missões`;
-        if ($('#duePill')) $('#duePill').textContent = `${state.tasks.filter(t => Number(t.cycle) === cycle && t.deadline).length} com prazo definido`;
+        if ($('#duePill')) $('#duePill').textContent = `${scopedTasks.filter(t => Number(t.cycle) === cycle && t.deadline).length} com prazo definido`;
         if ($('#ringCycleTitle')) {
           $('#ringCycleTitle').textContent = cycle === 'all' ? 'Conclusão do ciclo atual' : `Conclusão do ${cycle}º ciclo`;
         }
         if ($('#ringSubtext')) {
           $('#ringSubtext').textContent = total ? `${total - done} ainda não concluídas neste ciclo` : '0 para concluir';
         }
-        if ($('#completedTotal')) $('#completedTotal').textContent = completedTasks().length.toLocaleString('pt-BR');
-        if ($('#completedFoot')) $('#completedFoot').textContent = `de ${state.tasks.length.toLocaleString('pt-BR')} missões cadastradas`;
+        if ($('#completedTotal')) $('#completedTotal').textContent = completedTasks().filter(t => scopedTasks.includes(t)).length.toLocaleString('pt-BR');
+        if ($('#completedFoot')) $('#completedFoot').textContent = `de ${scopedTasks.length.toLocaleString('pt-BR')} missões cadastradas`;
       }
       function taskCard(task) {
         const pts = taskPoints(task);
@@ -363,7 +367,7 @@ import { cycleCompletionEstimate } from './shared/planning.js';
       function filteredTasks() {
         const q = $('#searchInput').value.trim().toLocaleLowerCase('pt-BR');
         const cycle = Number(state.currentCycle) + (cycleView === 'next' ? 1 : 0);
-        let list = state.tasks.filter(t => Number(t.cycle) === cycle);
+        let list = currentExamTasks().filter(t => Number(t.cycle) === cycle);
         if (q) list = list.filter(t => `${t.title} ${t.subject} ${taskExamName(t)} ${CYCLE_NAMES[t.cycle]}`.toLocaleLowerCase('pt-BR').includes(q));
         const sort = cycleView === 'next' ? 'title-desc' : $('#sortSelect').value;
         list.sort((a, b) => {
@@ -382,12 +386,13 @@ import { cycleCompletionEstimate } from './shared/planning.js';
         const list = filteredTasks();
         const cycle = Number(state.currentCycle) + (cycleView === 'next' ? 1 : 0);
         $('#taskCycleHeading').textContent = cycleView === 'next' ? 'Missões do próximo ciclo' : 'Missões do ciclo atual';
-        $('#taskCycleDescription').textContent = `Exibindo as missões do ${cycle}º ciclo.${cycleView === 'next' ? ' Ordem: Z–A.' : ''}`;
+        const exam = state.exams.find(item => item.id === state.currentExamId);
+        $('#taskCycleDescription').textContent = `${exam ? exam.name : 'Missões sem concurso vinculado'} · Exibindo as missões do ${cycle}º ciclo.${cycleView === 'next' ? ' Ordem: Z–A.' : ''}`;
         $('#visibleTaskCount').textContent = list.length;
         if (!list.length) {
-          const hasTasks = state.tasks.length > 0;
+          const hasTasks = currentExamTasks().length > 0;
           const title = hasTasks ? 'Nenhuma missão encontrada' : 'Seu próximo nível começa aqui';
-          const copy = hasTasks ? `Não há missões com essa busca no ${cycle}º ciclo. Selecione outro ciclo ou limpe a busca.` : 'Adicione seu primeiro item do edital ou importe uma planilha CSV pelas configurações para montar seu plano de estudos.';
+          const copy = hasTasks ? `Não há missões com essa busca no ${cycle}º ciclo deste concurso. Selecione outro ciclo ou limpe a busca.` : 'Adicione uma missão vinculada ao concurso atual para montar seu plano de estudos.';
           $('#taskGrid').innerHTML = `<div class="empty-state"><div class="empty-icon">${iconSvg(hasTasks ? 'book' : 'plus')}</div><h3>${title}</h3><p>${copy}</p><button class="btn btn-primary" type="button" id="emptyAddButton">${hasTasks ? 'Limpar filtros' : 'Criar primeira missão'}</button></div>`;
           $('#emptyAddButton')?.addEventListener('click', () => { if (hasTasks) { $('#searchInput').value = ''; renderTasks(); } else showTaskForm(); });
         } else {
@@ -396,9 +401,9 @@ import { cycleCompletionEstimate } from './shared/planning.js';
       }
       function renderCycleEstimate() {
         const badge = $('#cycleCompletionEstimate');
-        const tasks = state.tasks.filter(task => Number(task.cycle) === Number(state.currentCycle));
+        const tasks = currentExamTasks().filter(task => Number(task.cycle) === Number(state.currentCycle));
         badge.classList.toggle('hidden', cycleView !== 'current' || tasks.length === 0);
-        const estimate = cycleCompletionEstimate(state.tasks, state.currentCycle);
+        const estimate = cycleCompletionEstimate(currentExamTasks(), state.currentCycle);
         const daily = $('#missionsCompletedToday');
         daily.textContent = `Realizadas hoje: ${estimate.completedToday}`;
         daily.classList.toggle('hidden', cycleView !== 'current');
@@ -437,7 +442,7 @@ import { cycleCompletionEstimate } from './shared/planning.js';
           if (existingKeys.has(key)) return;
           existingKeys.add(key);
           newTasks.push({
-            id: makeId(), title: row[0], link: normalizeUrl(row[1]), subject: MISSION_CATEGORIES[row[2]] || row[2],
+            id: makeId(), title: row[0], link: normalizeUrl(row[1]), subject: MISSION_CATEGORIES[row[2]] || row[2], examId: TCE_GO_SEED_ID,
             deadline: '', cycle: 1, importance: MISSION_IMPORTANCE[row[3]] || 'medium', done: false,
             createdAt: now, updatedAt: now
           });
@@ -896,7 +901,7 @@ import { cycleCompletionEstimate } from './shared/planning.js';
           }
           if (!state.currentExamId && state.exams.length === 1) state.currentExamId = newItem.id;
           if (!saveState()) { reportError('Não foi possível gravar os dados neste navegador.'); return; }
-          renderExams();
+          renderAll();
           closeModal('examModal');
           toast('Concurso salvo', name);
         } catch (error) {
@@ -916,11 +921,17 @@ import { cycleCompletionEstimate } from './shared/planning.js';
           renderExams();
           toast(item.registered?'Inscrição realizada':'Inscrição desmarcada', item.name);
         }
-        else if(action==='promote'){state.currentExamId=item.id;saveState();renderExams();toast('Concurso atual definido',item.name);}
+        else if(action==='promote'){
+          const previous = state.currentExamId;
+          state.currentExamId=item.id;
+          if (!saveState()) { state.currentExamId=previous; renderAll(); return; }
+          $('#searchInput').value='';
+          renderAll();toast('Concurso atual definido',item.name);
+        }
         else if(action==='delete'&&confirm(`Excluir o concurso "${item.name}"?`)){
           state.exams=state.exams.filter(e=>e.id!==item.id);
           if(state.currentExamId===item.id) state.currentExamId=null;
-          if (!saveState()) { renderAll(); return; }renderExams();toast('Concurso excluído',item.name);
+          if (!saveState()) { renderAll(); return; }renderAll();toast('Concurso excluído',item.name);
         }
       }
 
